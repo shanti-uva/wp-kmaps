@@ -55,3 +55,14 @@ function mandala_page_template( $page_template ) {
   return $page_template;
 }
 add_filter('page_template', 'mandala_page_template');
+
+/**
+ * Add wrapper for react app initialization in all pages except mandala page type.
+ */
+function mandala_wp_footer() {
+  global $template;
+  if (!(basename( $template ) === 'mandala-page-template.php')) {
+    echo '<div id="root" style="display:none"></div>';
+  }
+}
+add_action('wp_footer', 'mandala_wp_footer');
