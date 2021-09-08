@@ -31,7 +31,8 @@ add_action('init', function() {
       wp_enqueue_style('fontawesome-solid', esc_url_raw('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/solid.min.css'), array(), null);
       wp_enqueue_style('bootstrap-main', esc_url_raw('https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'), array(), null);
       wp_enqueue_script('googlemaps', esc_url_raw('https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAXpnXkPS39-Bo5ovHQWvyIk6eMgcvc1q4&amp;sensor=false'), array(), null);
-
+      wp_register_script('mandala-sa',  get_stylesheet_directory_uri() . '/js/mandala-sa.js', array('jquery'),'1.0', true);
+      wp_enqueue_script('mandala-sa');
       $asset_manifest = json_decode(file_get_contents(MANDALA_ASSET_MANIFEST), true)['files'];
 
       if (isset($asset_manifest['main.css'])) {

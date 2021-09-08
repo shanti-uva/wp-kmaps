@@ -17,8 +17,25 @@ define('MANDALA_ASSET_MANIFEST', MANDALA_APP_PATH . '/build/asset-manifest.json'
 define('MANDALA_INCLUDES', plugin_dir_path(__FILE__) . '/includes');
 
 require_once(MANDALA_INCLUDES . '/enqueue.php');
-//require_once(MANDALA_INCLUDES . '/create-page.php');
 
+
+/**
+ * Adding custom div with id mandala-root for embedding mandala
+ */
+function acuf_add_mandala_div() {
+    echo '<div id="mandala-root"></div>';
+}
+
+add_action('astra_entry_before', 'acuf_add_mandala_div');
+
+
+/**
+ * Add Redirect for /mandala
+ */
+
+
+
+/************* old stuff remove (create /mandala page) ****************************/
 /**
  * Create a custom page with slug -> /mandala
  */
