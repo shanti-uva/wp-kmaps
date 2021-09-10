@@ -16,3 +16,16 @@ function mandala_which_template_is_loaded()
 }
 
 add_action('wp_footer', 'mandala_which_template_is_loaded');
+
+
+function mandala_test()
+{
+    global $template;
+
+    $template_name = basename($template);
+    if ($template_name == 'page-custom.php') {
+        do_shortcode('[madvsearch]');
+    }
+}
+
+add_action('astra_primary_content_top', 'mandala_test');

@@ -1,1 +1,1 @@
-<span id='advancedSearchPortal'></span>
+<div id='advancedSearchPortal'></div>

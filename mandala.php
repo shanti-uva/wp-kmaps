@@ -18,7 +18,7 @@ define('MANDALA_INCLUDES', plugin_dir_path(__FILE__) . '/includes');
 defined('ABSPATH') or die('Direct script access disallowed.');
 
 // Comment following line out when not debugging or on Prod
-// require_once(MANDALA_INCLUDES . '/debug.php');
+require_once(MANDALA_INCLUDES . '/debug.php');
 
 /**
  * TODO: Add Redirect for /mandala
@@ -106,4 +106,17 @@ add_action('init', function () {
             }
         }
     });
+
+    // Add advanced search portal on page-custom.php templates for custom placement of mandala content
+    function custom_adv_search_portal()
+    {
+        global $template;
+        $template_name = basename($template);
+        if ($template_name == 'page-custom.php') {
+            do_shortcode('[madvsearch]');
+        }
+    }
+
+    add_action('astra_primary_content_top', 'custom_adv_search_portal');
 });
+
