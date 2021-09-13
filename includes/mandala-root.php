@@ -1,1 +1,1 @@
-<div id='mandala-root'></div>
+<div id="mandala-root"></div>
