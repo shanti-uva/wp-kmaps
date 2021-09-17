@@ -20,22 +20,18 @@ defined('ABSPATH') or die('Direct script access disallowed.');
 // Comment following line out when not debugging or on Prod
 require_once(MANDALA_INCLUDES . '/debug.php');
 
-/**
- * TODO: Add Redirect for /mandala
- */
-
 
 add_action('init', function () {
-    //Register js and css for shortcodes
-    // wp_register_script('mandala-shortcode-script', plugins_url('scripts/global-search.js', __FILE__), array('jquery'), '1.0', true);
-    // wp_register_style('mandala-shortcode-style', plugins_url('styles/global-search.css', __FILE__), array(), '1.0', 'all');
-    //wp_register_sty le("mandala-global-style", plugins_url("styles/global-site.css", __FILE__), array(), "1.0", "all");
+    error_log("request: " . $_SERVER['REQUEST_URI'] . ' : ' . $_SERVER['HTTP_REFERER']);
+    if ($_SERVER['REQUEST_URI'] == '/mandala/') {
+        $redir_url = (empty($_SERVER['HTTP_REFERER'])) ? '/' : $_SERVER['HTTP_REFERER'];
+        error_log("Redirecting to: " . $redir_url);
+        header("Location: $redir_url");
+        exit(0);
+    }
 
     // Add shortcode for mandalaroot div
     add_shortcode('mandalaroot', function () {
-//       wp_enqueue_script('jquery');
-//       wp_enqueue_script('mandala-shortcode-script', array('jquery'), '1.0', true);
-//       wp_enqueue_style('mandala-shortcode-style');
         $form = file_get_contents(__DIR__ . '/includes/mandala-root.php');
         return $form;
     });
@@ -43,9 +39,6 @@ add_action('init', function () {
 
     //Add shortcode for basic search div
     add_shortcode('mandalaglobalsearch', function () {
-//        wp_enqueue_script('jquery');
-//        wp_enqueue_script('mandala-shortcode-script', array('jquery'), '1.0', true);
-//        wp_enqueue_style('mandala-shortcode-style');
         $form = file_get_contents(__DIR__ . '/includes/global-search.php');
         return $form;
     });
@@ -96,30 +89,26 @@ add_action('init', function () {
                         wp_enqueue_style($name, get_site_url() . $value, array('mandala'), null);
                     }
                 }
-
-                // if (preg_match('@static/media/(.*)\.css@', $key, $matches)) {
-                //   if ($matches && is_array($matches) && count($matches) === 2) {
-                //     $name = "mandala-" . preg_replace('/[^A-Za-z0-9]/', '-', $matches[1]);
-                //     wp_enqueue_style($name, get_site_url() . $value, array('mandala'), null);
-                //   }
-                // }
             }
         }
+    });
+
+    // Add the page-custom (copy of Astra's page.php) template to template list
+    add_filter('theme_page_templates', function ($templates) {
+        $templates[plugin_dir_path(__FILE__) . 'templates/page-custom.php'] = 'Custom Mandala Page Template';
+        return $templates;
     });
 
     // Add advanced search portal on page-custom.php templates for custom placement of mandala content
     function custom_adv_search_portal()
     {
-        global $template;
-        $template_name = basename($template);
-        if ($template_name == 'page-custom.php') {
-            error_log("Not adding mandala root");
-            //echo do_shortcode('[madvsearch]');
-        } else {
+        $template_path = get_page_template_slug();
+        if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php')) {
             echo do_shortcode('[mandalaroot]');
         }
     }
 
-    add_action('astra_primary_content_top', 'custom_adv_search_portal');
+    // Different positioning of default mandala div: astra_entry_content_before | astra_primary_content_top
+    add_action('astra_entry_content_before', 'custom_adv_search_portal');
 });
 
