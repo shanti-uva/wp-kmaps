@@ -3,10 +3,10 @@
  * @wordpress-plugin
  * Plugin Name: Mandala React App
  * Description: Mandala React App embedded in a WordPress Page called /mandala
- * Version: 0.1
+ * Version: 0.2
  * Requires at least: 5.2
  * Requires PHP: 7.2
- * Author: Gerard Ketuma
+ * Authors: Gerard Ketuma, Than Grove
  * Domain Path: /languages
  */
 
