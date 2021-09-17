@@ -6,7 +6,7 @@
  * Version: 0.2
  * Requires at least: 5.2
  * Requires PHP: 7.2
- * Authors: Gerard Ketuma, Than Grove
+ * Author: Gerard Ketuma, Than Grove
  * Domain Path: /languages
  */
 
