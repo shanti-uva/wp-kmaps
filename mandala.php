@@ -18,7 +18,7 @@ define('MANDALA_INCLUDES', plugin_dir_path(__FILE__) . '/includes');
 defined('ABSPATH') or die('Direct script access disallowed.');
 
 // Comment following line out when not debugging or on Prod
-require_once(MANDALA_INCLUDES . '/debug.php');
+// require_once(MANDALA_INCLUDES . '/debug.php');
 
 
 add_action('init', function () {
@@ -99,8 +99,8 @@ add_action('init', function () {
         return $templates;
     });
 
-    // Add advanced search portal on page-custom.php templates for custom placement of mandala content
-    function custom_adv_search_portal()
+    // Add the Mandala root div to standard pages that do not have the page-custom template
+    function add_mandala_root()
     {
         $template_path = get_page_template_slug();
         if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php')) {
@@ -108,7 +108,20 @@ add_action('init', function () {
         }
     }
 
-    // Different positioning of default mandala div: astra_entry_content_before | astra_primary_content_top
-    add_action('astra_entry_content_before', 'custom_adv_search_portal');
+    // Add before content astra_entry_content_before
+    add_action('astra_content_top', 'add_mandala_root');
+
+	// Add advanced search div to show facets and trees
+	function add_advanced_search_side()
+	{
+		$template_path = get_page_template_slug();
+		if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php')) {
+			echo do_shortcode('[madvsearch]');
+        }
+	}
+
+	// add before side bar
+	// add_action('astra_sidebars_before', 'add_advanced_search_side');
+
 });
 
