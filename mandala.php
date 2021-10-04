@@ -105,7 +105,7 @@ add_action('init', function () {
 		global $template;
         $template_path = get_page_template_slug();
         if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php') &&
-            !strstr($template, 'thdl-astra/index.php')) {
+            !strstr($template, 'index.php')) {
             echo do_shortcode('[mandalaroot]');
         }
     }
@@ -114,16 +114,16 @@ add_action('init', function () {
     add_action('astra_content_top', 'add_mandala_root');
 
 	// Add advanced search div to show facets and trees
+	/*
 	function add_advanced_search_side()
 	{
 		global $template;
 		$template_path = get_page_template_slug();
-		if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php') &&
-		    !strstr($template, 'thdl-astra/index.php')) {
+		if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php')) {
 			echo do_shortcode('[madvsearch]');
         }
 	}
-
+	*/
 	// add before side bar
 	// add_action('astra_sidebars_before', 'add_advanced_search_side');
 
