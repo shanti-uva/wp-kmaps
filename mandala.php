@@ -18,7 +18,7 @@ define('MANDALA_INCLUDES', plugin_dir_path(__FILE__) . '/includes');
 defined('ABSPATH') or die('Direct script access disallowed.');
 
 // Comment following line out when not debugging or on Prod
-// require_once(MANDALA_INCLUDES . '/debug.php');
+require_once(MANDALA_INCLUDES . '/debug.php');
 
 
 add_action('init', function () {
@@ -102,8 +102,10 @@ add_action('init', function () {
     // Add the Mandala root div to standard pages that do not have the page-custom template
     function add_mandala_root()
     {
+		global $template;
         $template_path = get_page_template_slug();
-        if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php')) {
+        if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php') &&
+            !strstr($template, 'thdl-astra/index.php')) {
             echo do_shortcode('[mandalaroot]');
         }
     }
@@ -114,8 +116,10 @@ add_action('init', function () {
 	// Add advanced search div to show facets and trees
 	function add_advanced_search_side()
 	{
+		global $template;
 		$template_path = get_page_template_slug();
-		if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php')) {
+		if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php') &&
+		    !strstr($template, 'thdl-astra/index.php')) {
 			echo do_shortcode('[madvsearch]');
         }
 	}
