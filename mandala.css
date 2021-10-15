@@ -1,0 +1,25 @@
+
+body:not(.mandala) #mandala-root {
+    display: none;
+}
+
+body.mandala #mandala-root {
+    display: block;
+}
+
+.breadcrumb-item + .breadcrumb-item:before {
+    display: none;
+}
+
+/*
+.elementor-element #advancedSearchPortal {
+    position: absolute;
+    right: -10rem;
+}
+
+.elementor-shortcode #advancedSearchPortal {
+    position: absolute;
+    top: 4.6rem;
+    right: -1rem;
+}
+ */
