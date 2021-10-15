@@ -105,7 +105,7 @@ add_action('init', function () {
 		global $template;
         $template_path = get_page_template_slug();
         if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php') &&
-            !strstr($template, 'index.php')) {
+            !strstr($template, 'index.php') && !is_page('journal')) {
             echo do_shortcode('[mandalaroot]');
         }
     }
