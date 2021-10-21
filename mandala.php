@@ -131,7 +131,7 @@ add_action('init', function () {
     function mandala_site_title() {
         $meta = get_post_meta(get_the_ID(), 'subsite-title');
         if (!empty($meta[0])) {
-            return ' -- <span>' . $meta[0]  . '</span>';
+            return ' -- <span class="mandala-site-title">' . $meta[0]  . '</span>';
         } else {
             return '';
         }
