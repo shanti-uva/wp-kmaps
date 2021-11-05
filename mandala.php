@@ -20,6 +20,7 @@ defined('ABSPATH') or die('Direct script access disallowed.');
 // Comment following line out when not debugging or on Prod
 // require_once(MANDALA_INCLUDES . '/debug.php');
 
+require_once(MANDALA_INCLUDES . '/mandala-admin.php');
 
 add_action('init', function () {
     error_log("request: " . $_SERVER['REQUEST_URI'] . ' : ' . $_SERVER['HTTP_REFERER']);
@@ -102,12 +103,15 @@ add_action('init', function () {
     // Add the Mandala root div to standard pages that do not have the page-custom template
     function add_mandala_root()
     {
-		global $template;
-        $template_path = get_page_template_slug();
-        if (!strstr($template_path, 'plugins/mandala/templates/page-custom.php') &&
-            !strstr($template, 'index.php') && !is_page('journal')) {
-            echo do_shortcode('[mandalaroot]');
-        }
+		if (get_option('mandala_autoinsert_setting', 1) == 1) {
+			global $template;
+			$template_path = get_page_template_slug();
+
+			if ( ! strstr( $template_path, 'plugins/mandala/templates/page-custom.php' ) &&
+			     ! strstr( $template, 'index.php' ) && ! is_page( 'journal' ) ) {
+				echo '<div id="rootyfruity"></div>' . do_shortcode( '[mandalaroot]' );
+			}
+		}
     }
 
     // Add before content astra_entry_content_before
@@ -138,5 +142,5 @@ add_action('init', function () {
     }
     add_filter('astra_site_title_output', 'mandala_site_title');
 
-});
+});  // End of Plugin init
 
