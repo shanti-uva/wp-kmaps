@@ -18,7 +18,7 @@ define('MANDALA_INCLUDES', plugin_dir_path(__FILE__) . '/includes');
 defined('ABSPATH') or die('Direct script access disallowed.');
 
 // Comment following line out when not debugging or on Prod
-require_once(MANDALA_INCLUDES . '/debug.php');
+// require_once(MANDALA_INCLUDES . '/debug.php');
 
 
 add_action('init', function () {
