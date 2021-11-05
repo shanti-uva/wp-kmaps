@@ -109,7 +109,7 @@ add_action('init', function () {
 
 			if ( ! strstr( $template_path, 'plugins/mandala/templates/page-custom.php' ) &&
 			     ! strstr( $template, 'index.php' ) && ! is_page( 'journal' ) ) {
-				echo '<div id="rootyfruity"></div>' . do_shortcode( '[mandalaroot]' );
+				echo do_shortcode( '[mandalaroot]' );
 			}
 		}
     }
