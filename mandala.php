@@ -132,12 +132,13 @@ add_action('init', function () {
 	// add_action('astra_sidebars_before', 'add_advanced_search_side');
 
     //Add filter to create the site title.
-    function mandala_site_title() {
+
+    function mandala_site_title($title) {
         $meta = get_post_meta(get_the_ID(), 'subsite-title');
         if (!empty($meta[0])) {
             return ' -- <span class="mandala-site-title">' . $meta[0]  . '</span>';
         } else {
-            return '';
+            return $title;
         }
     }
     add_filter('astra_site_title_output', 'mandala_site_title');
