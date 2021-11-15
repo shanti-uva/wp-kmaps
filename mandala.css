@@ -7,6 +7,11 @@ body.mandala #mandala-root {
     display: block;
 }
 
+body.mandala div#mandala-root + div,
+body.mandala div#mandala-root + main#main {
+    display: none;
+}
+
 .breadcrumb-item + .breadcrumb-item:before {
     display: none;
 }
