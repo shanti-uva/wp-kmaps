@@ -134,7 +134,7 @@ add_action('init', function () {
     //Add filter to create the site title.
 
     function mandala_site_title($title) {
-        $meta = get_post_meta(get_the_ID(), 'subsite-title');
+        $meta = get_post_meta(get_the_ID(), 'subsite');
         if (!empty($meta[0])) {
             return ' -- <span class="mandala-site-title">' . $meta[0]  . '</span>';
         } else {
@@ -145,12 +145,18 @@ add_action('init', function () {
 
     // Add filter to display Astra logo:
     function mandala_astra_logo() {
+        // Custom fields for subsite existence and subsite alt text.
+        $subsite = get_post_meta(get_the_ID(), 'subsite');
+
         $html = '';
         $html .= '<span class="site-logo-img">';
         //$html .= get_custom_logo();
-        if (is_page('journal')) {
-            $html .= '<a href="/journal" class="custom-logo-link" rel="journal">';
-            $html .= '<img src="' . get_the_post_thumbnail_url() . '" decoding="async" class="custom-logo" alt="The Journal of Contemplative Studies">';
+        if (!empty($subsite[0])) {
+            $html .= '<a href="/" rel="home" class="main-logo-only">';
+            $html .= file_get_contents( WP_PLUGIN_DIR . '/mandala/images/mandala_logo.svg');
+            $html .= '</a>';
+            $html .= '<a href="/' . get_post_field( 'post_name', get_post() ) . '" class="custom-logo-link">';
+            $html .= '<img src="' . get_the_post_thumbnail_url() . '" decoding="async" class="custom-logo" alt="' . get_post_meta(get_the_ID(), 'subsite-alt-text')[0] . '">';
             $html .= '</a>';
         } else {
             $html .= get_custom_logo();
