@@ -143,5 +143,22 @@ add_action('init', function () {
     }
     add_filter('astra_site_title_output', 'mandala_site_title');
 
-});  // End of Plugin init
+    // Add filter to display Astra logo:
+    function mandala_astra_logo() {
+        $html = '';
+        $html .= '<span class="site-logo-img">';
+        //$html .= get_custom_logo();
+        if (is_page('journal')) {
+            $html .= '<a href="/journal" class="custom-logo-link" rel="journal">';
+            $html .= '<img src="' . get_the_post_thumbnail_url() . '" decoding="async" class="custom-logo" alt="The Journal of Contemplative Studies">';
+            $html .= '</a>';
+        } else {
+            $html .= get_custom_logo();
+        }
+        $html .= '</span>';
+        return $html;
+    }
+    add_filter('astra_logo', 'mandala_astra_logo');
+
+});
 
