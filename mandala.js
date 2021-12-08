@@ -4,23 +4,23 @@
     if ($navs.length > 1) {
         $($navs[0]).attr('style', 'display:none !important');
         $($navs[1]).css('margin-top', '-23px');
-        $($navs[1]).find('ul.elementor-nav-menu > li > a.menu-link').attr('style', 'background: inherit !important');
+        //$($navs[1]).find('ul.elementor-nav-menu > li > a.menu-link').attr('style', 'background: inherit !important');
 
         // Highlight the correct subsite menu link.
-        $($navs[1]).find("a[href*='" + window.location.hash.substr(2) + "']").attr('style', 'background-color: #fff !important;color:#212529');
+        // $($navs[1]).find("a[href*='" + window.location.hash.substr(2) + "']").attr('style', 'background-color: #fff !important;color:#212529');
 
-        // Get parent search params if one exists and use it to highlight subsite menu.
-        let searchParams = new URLSearchParams(window.location.hash.split('?', 2)[1]);
-        if (searchParams.has('parent')) {
-            $($navs[1]).find("a[href*='" + searchParams.get('parent') + "']").attr('style', 'background-color: #fff !important;color:#212529');
-        }
+        // // Get parent search params if one exists and use it to highlight subsite menu.
+        // let searchParams = new URLSearchParams(window.location.hash.split('?', 2)[1]);
+        // if (searchParams.has('parent')) {
+        //     $($navs[1]).find("a[href*='" + searchParams.get('parent') + "']").attr('style', 'background-color: #fff !important;color:#212529');
+        // }
 
-        $(window).on('hashchange', function(e) {
-                $($navs[1]).find("a").attr('style', 'background-color:transparent !important');
-                $($navs[1]).find("a[href*='" + window.location.hash.substr(2) + "']").attr('style', 'background-color: #fff !important;color:#212529');
-                // Get parent search params if one exists and use it to highlight subsite menu.
-                searchParams = new URLSearchParams(window.location.hash.split('?', 2)[1]);
-                $($navs[1]).find("a[href*='" + searchParams.get('parent') + "']").attr('style', 'background-color: #fff !important;color:#212529');
-        });
+        // $(window).on('hashchange', function(e) {
+        //         $($navs[1]).find("a").attr('style', 'background-color:transparent !important');
+        //         $($navs[1]).find("a[href*='" + window.location.hash.substr(2) + "']").attr('style', 'background-color: #fff !important;color:#212529');
+        //         // Get parent search params if one exists and use it to highlight subsite menu.
+        //         searchParams = new URLSearchParams(window.location.hash.split('?', 2)[1]);
+        //         $($navs[1]).find("a[href*='" + searchParams.get('parent') + "']").attr('style', 'background-color: #fff !important;color:#212529');
+        // });
     }
 })(jQuery);

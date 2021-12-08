@@ -108,7 +108,7 @@ add_action('init', function () {
 			$template_path = get_page_template_slug();
 
 			if ( ! strstr( $template_path, 'plugins/mandala/templates/page-custom.php' ) &&
-			     ! strstr( $template, 'index.php' ) && ! is_page( 'journal' ) ) {
+			     ! strstr( $template, 'index.php' ) && empty(get_post_meta(get_the_ID(), 'subsite')[0]) ) {
 				echo do_shortcode( '[mandalaroot]' );
 			}
 		}
