@@ -145,6 +145,7 @@ add_action('init', function () {
 
     // Add filter to display Astra logo:
     function mandala_astra_logo() {
+        global $post;
         // Custom fields for subsite existence and subsite alt text.
         $subsite = get_post_meta(get_the_ID(), 'subsite');
 
@@ -152,10 +153,18 @@ add_action('init', function () {
         $html .= '<span class="site-logo-img">';
         //$html .= get_custom_logo();
         if (!empty($subsite[0])) {
+            //Check if post has a parent and use the parent for link. If not assume post is parent.
+            $link = '';
+            if ((bool) $post->post_parent) {
+                $link = get_permalink($post->post_parent);
+            } else {
+                $link = get_permalink($post);
+            }
+
             $html .= '<a href="/" rel="home" class="main-logo-only">';
             $html .= file_get_contents( WP_PLUGIN_DIR . '/mandala/images/mandala_logo.svg');
             $html .= '</a>';
-            $html .= '<a href="/' . get_post_field( 'post_name', get_post() ) . '" class="custom-logo-link">';
+            $html .= '<a href="' . $link . '" class="custom-logo-link">';
             $html .= '<img src="' . get_the_post_thumbnail_url() . '" decoding="async" class="custom-logo" alt="' . get_post_meta(get_the_ID(), 'subsite-alt-text')[0] . '">';
             $html .= '</a>';
         } else {
