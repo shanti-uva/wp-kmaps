@@ -23,4 +23,10 @@
         //         $($navs[1]).find("a[href*='" + searchParams.get('parent') + "']").attr('style', 'background-color: #fff !important;color:#212529');
         // });
     }
+
+    //Resizable script
+    $(".main-content-col").resizable({
+        handleSelector: ".vertical-splitter",
+        resizeHeight: false
+    });
 })(jQuery);

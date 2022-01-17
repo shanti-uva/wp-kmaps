@@ -16,15 +16,28 @@ body.mandala div#mandala-root + main#main {
     display: none;
 }
 
-/*
-.elementor-element #advancedSearchPortal {
-    position: absolute;
-    right: -10rem;
+/* Resize */
+.main-content-col,
+.vertical-splitter {
+    flex: 0 0 auto;
 }
 
-.elementor-shortcode #advancedSearchPortal {
-    position: absolute;
-    top: 4.6rem;
-    right: -1rem;
+.main-content-col {
+    max-width: calc(min(72%, 1380px)) !important;
 }
- */
+
+.vertical-splitter {
+    width: 10px !important;
+    background: #d5d6e1;
+    min-height: 200px;
+    cursor: col-resize;
+}
+
+.search-facet {
+    flex: 1 1 auto;
+    width: calc(100% - 72% - 10px) !important;
+}
+
+.search-facet > .elementor-element-populated {
+    padding: 0px !important;
+}
