@@ -24,6 +24,7 @@ body.mandala div#mandala-root + main#main {
 
 .main-content-col {
     max-width: calc(min(72%, 1380px)) !important;
+    min-width: 730px;
 }
 
 .vertical-splitter {
@@ -40,4 +41,8 @@ body.mandala div#mandala-root + main#main {
 
 .search-facet > .elementor-element-populated {
     padding: 0px !important;
+}
+
+.search-facet #advancedSearchPortal .l-content__rightsidebar {
+    max-width: inherit !important;
 }
