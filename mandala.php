@@ -136,7 +136,7 @@ final class Mandala {
 		if (!is_admin()) {
 			wp_enqueue_script( 'googlemaps', esc_url_raw( 'https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAXpnXkPS39-Bo5ovHQWvyIk6eMgcvc1q4&amp;sensor=false' ), array(), null );
 			wp_enqueue_script( 'jquery-resizable', plugins_url( "jquery-resizable.min.js", __FILE__ ), array( 'jquery' ), '1.0', true );
-			wp_enqueue_script( 'mandala-js', plugins_url( "js/mandala.js", __FILE__ ), array( 'jquery' ), '1.0', true );
+			wp_enqueue_script( 'mandala-js', plugins_url( "public/js/mandala.js", __FILE__ ), array( 'jquery' ), '1.0', true );
 		}
 	}
 
@@ -149,17 +149,18 @@ final class Mandala {
 			wp_enqueue_style( 'fontawesome-main', esc_url_raw( 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/fontawesome.min.css' ), array(), null );
 			wp_enqueue_style( 'fontawesome-solid', esc_url_raw( 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/solid.min.css' ), array(), null );
 			wp_enqueue_style( 'bootstrap-main', esc_url_raw( 'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' ), array(), null );
-			wp_enqueue_style( 'mandala-css', plugins_url( "css/mandala.css", __FILE__ ), array(), "1.0", "all" );
+			wp_enqueue_style( 'mandala-css', plugins_url( "public/css/mandala.css", __FILE__ ), array(), "1.0", "all" );
 		}
 	}
 
 	/**
-	 * Define Mandala enqueue_styles.
+	 * Define Mandala enqueue_mandala_manifest.
+	 * Enqueues the scripts and styles used for the Mandala app
 	 */
 	private function enqueue_mandala_manifest() {
 		if (!is_admin()) {
 			$asset_manifest_raw = file_get_contents(MANDALA_ASSET_MANIFEST);
-			error_log($asset_manifest_raw);
+			// error_log($asset_manifest_raw);
 			$asset_manifest = json_decode($asset_manifest_raw, true)['files'];
 
 			if (isset($asset_manifest['main.css'])) {
@@ -187,7 +188,13 @@ final class Mandala {
 		}
 	}
 
-	// Add the Mandala root div to standard pages that do not have the page-custom template
+	/**
+	 * Function to add actions to the theme hooks named in the admin settings page
+	 * The actions defined below insert the shortcodes for mandala root, global search, and advanced search
+	 * This allows admins to determine on a site wide basis where to put mandala content
+	 * TODO: add setting for template name that never inserts shortcodes for custom pages OR
+	 * TODO: add a page setting that excludes mandala shortcodes.
+	 */
 	public function add_mandala()
 	{
 		// Add using the hook defined in settings
@@ -195,10 +202,39 @@ final class Mandala {
 		if (!empty($options['main_hook_name'])) {
 			add_action($options['main_hook_name'], array($this, 'add_mandala_root'));
 		}
+
+		if (!empty($options['search_hook_name'])) {
+			add_action($options['search_hook_name'], array($this, 'add_search'));
+		}
+
+		if (!empty($options['search_hook_name'])) {
+			add_action($options['search_hook_name'], array($this, 'add_advanced_search'));
+		}
+		$myid = 'hmm';
+		global $wp_query;
+		$myid = $wp_query->queried_object->ID;
+		error_log("myid: " . $myid);
+		//$use_shortcodes = get_field('use_short_codes');
+
+		// add_action('kadence_after_main_content', array($this, ''));
 	}
 
+	// Add Functions called from the add actions in add_mandala()
 	public function add_mandala_root() {
 		echo do_shortcode( '[mandalaroot]' );
+	}
+
+	public function add_search() {
+		echo do_shortcode( '[mandalaglobalsearch]' );
+	}
+
+	public function add_advanced_search() {
+		echo do_shortcode( '[madvsearch]' );
+	}
+
+	// A test string function for testing hooks (Not used)
+	public function add_test_string() {
+		echo "<p>##########************ HERE (kadence hero) ***************###############</p>";
 	}
 }
 
