@@ -1,3 +1,11 @@
 .settings_page_mandala_settings .warning {
     color: red;
 }
+
+.capitalize {
+    text-transform: capitalize;
+}
+
+.pre {
+    font-family: Monospaced, monospace;
+}

@@ -12,6 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+// require_once 'HTML/CSS.php';
+
 /**
  * WC_Admin class.
  */
@@ -26,6 +28,12 @@ class Mandala_Admin {
 		add_action( 'admin_menu', array($this, 'settings_page'));
 		wp_enqueue_style('mandala-admin-css', plugins_url("css/mandala-admin.css", __FILE__),
             array(), "1.0", "all");
+		wp_enqueue_style('jquery-linedtextarea-css', plugins_url("css/jquery-linedtextarea.css", __FILE__),
+			array(), "1.0", "all");
+		wp_enqueue_script( 'jquery-linedtextarea', plugins_url( "js/jquery-linedtextarea.js", __FILE__ ),
+            array( 'jquery' ), '1.0', true );
+		wp_enqueue_script( 'mandala-admin', plugins_url( "js/mandala-admin.js", __FILE__ ),
+            array( 'jquery-linedtextarea' ), '1.0', true );
 	}
 
     public function add_settings_link( $links ) {
@@ -47,32 +55,38 @@ class Mandala_Admin {
 
     public function register_settings() {
 	    register_setting(
-                'mandala_plugin_options',
-                'mandala_plugin_options',
-                array($this, 'options_validate'));
-	    add_settings_section(
-                'mandala_hook_names',
-                'Theme Hook Names',
-                array($this, 'hook_names_section'),
-                'mandala_settings');
+            'mandala_plugin_options',
+            'mandala_plugin_options',
+            array($this, 'options_validate'));
+        add_settings_section(
+            'mandala_hook_names',
+            'Theme Hook Names',
+            array($this, 'hook_names_section'),
+            'mandala_settings');
 	    add_settings_field(
-                'main_hook_name',
-                'Mandala Root Hook',
-                array($this, 'main_hook_name_field'),
-                'mandala_settings',
-                'mandala_hook_names');
+		    'automatic_insert',
+		    'Insert Shorcodes Automatically',
+		    array($this, 'automatic_insert_field'),
+		    'mandala_settings',
+		    'mandala_hook_names');
 	    add_settings_field(
-                'search_hook_name',
-                'Global Search Hook',
-                array($this, 'global_search_hook_name_field'),
-                'mandala_settings',
-                'mandala_hook_names');
+            'main_hook_name',
+            'Mandala Root Hook',
+            array($this, 'main_hook_name_field'),
+            'mandala_settings',
+            'mandala_hook_names');
 	    add_settings_field(
-                'advanced_search_hook_name',
-                'Advanced Search Hook',
-                array($this, 'advance_search_hook_name_field'),
-                'mandala_settings',
-                'mandala_hook_names');
+            'search_hook_name',
+            'Global Search Hook',
+            array($this, 'global_search_hook_name_field'),
+            'mandala_settings',
+            'mandala_hook_names');
+	    add_settings_field(
+            'advanced_search_hook_name',
+            'Advanced Search Hook',
+            array($this, 'advance_search_hook_name_field'),
+            'mandala_settings',
+            'mandala_hook_names');
 	    add_settings_section(
 		    'mandala_custom_styles',
 		    'Custom Styles for Mandala',
@@ -88,8 +102,65 @@ class Mandala_Admin {
     }
 
     public function options_validate($input) {
+        // Input keys are ["automatic_insert","main_hook_name","search_hook_name","advanced_search_hook_name","custom_styles"]
+        $hook_fields = ["main_hook_name","search_hook_name","advanced_search_hook_name"];
+        /*
+        This does not work: throws warning if theme hook has not been used and then uses it so that on
+        second save no error is thrown. Need a way to get theme hooks even if they haven't been instatiated.
+
+        foreach($hook_fields as $hfield) {
+	        $value  = $input[$hfield];
+            if (!empty($value) && !has_action($value)) {
+                $label = preg_replace("/\_/", " ", $hfield);
+	            add_settings_error($label, esc_attr( $hfield ),
+		            "The hook for <span class='capitalize'>$label</span> (<span class='pre'>$value</span>) does not exist!", 'error');
+            }
+        }
+        */
+        // Check custom CSS styles
+        if (!empty($input["custom_styles"])) {
+            // Check and santize css styles
+	        $input["custom_styles"] = $this->check_css_styles($input["custom_styles"]);
+        }
+
         return $input;
     }
+
+	/**
+     * Checks and sanitizes custom CSS styles
+	 * @param $styles
+	 *
+	 * @return string
+	 */
+    private function check_css_styles($styles) {
+	    $sanitized_styles = sanitize_textarea_field($styles);
+	    $validator_url = 'https://jigsaw.w3.org/css-validator/validator?output=json&text=';
+	    $result = file_get_contents($validator_url . urlencode($sanitized_styles));
+	    $result = json_decode($result, true);
+	    if ($result['cssvalidation']['validity']) {
+		    add_settings_error('Custom Styles', esc_attr( 'custom_styles' ),
+			    "Your custom Styles are Valid", 'success');
+	    } else {
+		    $errormsg = '<p>There was a problem with your custom styles:</p><blockquote>';
+		    $subamount = 0;
+		    foreach($result['cssvalidation']['errors'] as $eind => $err) {
+			    if ($eind > 0) { $errormsg .= "<br/>"; }
+			    $lnum = intval(($err['line'] * 1 + 1) / 2);
+			    $errormsg .= "— {$err['message']} (line {$lnum})";
+		    }
+		    $errormsg .= '</blockquote>';
+		    add_settings_error('Custom Styles', esc_attr( 'custom_styles' ),
+			    $errormsg, 'error');
+	    }
+	    return $sanitized_styles;
+    }
+
+	public function automatic_insert_field() {
+		$options = get_option( 'mandala_plugin_options' );
+        $check_val = $options['automatic_insert'] ?? 0;
+		echo "<input id='mandala_main_hook_name' name='mandala_plugin_options[automatic_insert]' type='checkbox' " .
+		     "value='1'" . checked( 1, $check_val, false ) . "' /><p></p>";
+	}
 
     public function hook_names_section() {
         echo "<p>In this section enter the name of the main theme hook where Mandala content should be inserted.<br/>" .
@@ -124,14 +195,15 @@ class Mandala_Admin {
 	}
 
 	public function custom_styles_section() {
-		echo "<p>In this area you can enter custom styles to be used on the site.</p>";
+		echo "<p>In this area you can enter custom styles to be used on the site.</p>" .
+		     "<div id='styles_messages'></div>";
 	}
 
 	public function custom_styles_field() {
 		$options = get_option( 'mandala_plugin_options' );
 		$option_val = !empty($options['custom_styles']) ? $options['custom_styles'] : '';
 		echo "<textarea id='mandala_custom_styles' name='mandala_plugin_options[custom_styles]' " .
-		     "rows='25' cols='130' value='" . esc_attr( $option_val ) . "' ></textarea>" .
+		     "rows='25' cols='130'>" . esc_attr( $option_val ) . "</textarea>" .
 		     "<p><em>Enter custom styles here. " .
 		     "Use the prefix “.mandala ” to target pages showing Mandala content</em></p>";
 	}

@@ -44,6 +44,28 @@ final class Mandala {
 	}
 
 	/**
+	 * Are Shortcodes Turned on for given page ID?
+	 * Depends on Advanced Custom Fields and that a page field has been added called "use_short_codes"
+	 * If ACF is not installed, always returns True.
+	 *
+	 * @param $pgid
+	 *
+	 * @return bool
+	 */
+	public static function shortcodesOn($pgid) {
+		if (!function_exists('get_field')) {
+			return true;
+		}
+		if ( is_int($pgid) ) {
+			$use_shortcodes = get_field('use_short_codes', $pgid);
+			if ($use_shortcodes == 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Mandala Constructor.
 	 */
 	public function __construct() {
@@ -191,14 +213,21 @@ final class Mandala {
 	/**
 	 * Function to add actions to the theme hooks named in the admin settings page
 	 * The actions defined below insert the shortcodes for mandala root, global search, and advanced search
-	 * This allows admins to determine on a site wide basis where to put mandala content
-	 * TODO: add setting for template name that never inserts shortcodes for custom pages OR
-	 * TODO: add a page setting that excludes mandala shortcodes.
+	 * This allows admins to determine on a site wide basis where to put mandala content=
 	 */
 	public function add_mandala()
 	{
 		// Add using the hook defined in settings
 		$options = get_option( 'mandala_plugin_options' );
+		if (!empty($options['custom_styles'])) {
+			add_action('wp_head', array($this, 'add_custom_styles'));
+		}
+
+		// Do not add hook actions if checkbox is not checked so just return
+		if (empty($options['automatic_insert'])) {
+			return;
+		}
+
 		if (!empty($options['main_hook_name'])) {
 			add_action($options['main_hook_name'], array($this, 'add_mandala_root'));
 		}
@@ -207,35 +236,63 @@ final class Mandala {
 			add_action($options['search_hook_name'], array($this, 'add_search'));
 		}
 
-		if (!empty($options['search_hook_name'])) {
-			add_action($options['search_hook_name'], array($this, 'add_advanced_search'));
+		if (!empty($options['advanced_search_hook_name'])) {
+			add_action($options['advanced_search_hook_name'], array($this, 'add_advanced_search'));
 		}
-		$myid = 'hmm';
-		global $wp_query;
-		$myid = $wp_query->queried_object->ID;
-		error_log("myid: " . $myid);
-		//$use_shortcodes = get_field('use_short_codes');
-
-		// add_action('kadence_after_main_content', array($this, ''));
 	}
 
 	// Add Functions called from the add actions in add_mandala()
+
+	/**
+	 * Adds custom styles from settings to header in style tag
+	 */
+	public function add_custom_styles() {
+		//error_log("adding custom styles...");
+		$options = get_option( 'mandala_plugin_options' );
+		echo "<style id='mandala-custom-styles' type='text/css'>{$options['custom_styles']}</style>";
+	}
+
+	/**
+	 * Adds Shortcode for mandala root (<div id="mandala-root"></div>)
+	 */
 	public function add_mandala_root() {
-		echo do_shortcode( '[mandalaroot]' );
+		$page_id = get_queried_object_id();
+		if (Mandala::shortcodesOn($page_id)) {
+			echo do_shortcode( '[mandalaroot]' );
+		}
 	}
 
+	/**
+	 * Adds Shortcode for global search
+	 */
 	public function add_search() {
-		echo do_shortcode( '[mandalaglobalsearch]' );
+		$page_id = get_queried_object_id();
+		if (Mandala::shortcodesOn($page_id)) {
+			echo do_shortcode( '[mandalaglobalsearch]' );
+		}
 	}
 
+	/**
+	 * Adds Shortcode for advanced search
+	 */
 	public function add_advanced_search() {
-		echo do_shortcode( '[madvsearch]' );
+		$page_id = get_queried_object_id();
+		if (Mandala::shortcodesOn($page_id)) {
+			echo do_shortcode( '[madvsearch]' );
+		}
 	}
 
-	// A test string function for testing hooks (Not used)
-	public function add_test_string() {
-		echo "<p>##########************ HERE (kadence hero) ***************###############</p>";
+	/**
+	 * For Removing unwanted hook actions if they happen to accord
+	 * Not called here, just from command line
+	 * @param $hookname
+	 * @param $callback
+	 */
+	public function remove_action($hookname, $callback) {
+		remove_action($hookname, array($this, $callback));
 	}
+
+
 }
 
 
