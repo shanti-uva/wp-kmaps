@@ -47,6 +47,14 @@
                 $('#secondary').show();
                 window.scrollTo(0,0);
             }
+            setTimeout(() => {
+                if ($('#l-column__search').hasClass('closed')) {
+                    $('#secondary').hide();
+                } else if ($('#secondary').is(":hidden")) {
+                    $('#secondary').show();
+                    window.scrollTo(0,0);
+                }
+            }, 10);
         });
 
 })(jQuery);
