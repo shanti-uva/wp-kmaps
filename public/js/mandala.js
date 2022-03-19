@@ -25,8 +25,28 @@
     }
 
     //Resizable script
+    /*
     $(".main-content-col").resizable({
         handleSelector: ".vertical-splitter",
         resizeHeight: false
     });
+*/
+    // Move setting buttong into group (Do this in Mandala code)
+    $(document).ready(() => {
+        $('#browseSearchPortal button#advanced-site-settings').appendTo($('#browseSearchPortal .c-MainSearchToggle--group'));
+
+    });
+
+    $('#secondary').on('click', '.search-column-close-filters, .treeNav-header__closeButton', (e) => {
+        $('#secondary').hide();
+    });
+
+    $('#browseSearchPortal').on('click', '#advanced-search-tree-toggle, #main-search-tree-toggle',
+        (e) => {
+            if ($('#secondary').is(":hidden")) {
+                $('#secondary').show();
+                window.scrollTo(0,0);
+            }
+        });
+
 })(jQuery);

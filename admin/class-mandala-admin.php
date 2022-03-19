@@ -202,6 +202,7 @@ class Mandala_Admin {
 	public function custom_styles_field() {
 		$options = get_option( 'mandala_plugin_options' );
 		$option_val = !empty($options['custom_styles']) ? $options['custom_styles'] : '';
+        error_log(json_encode($options, JSON_PRETTY_PRINT));
 		echo "<textarea id='mandala_custom_styles' name='mandala_plugin_options[custom_styles]' " .
 		     "rows='25' cols='130'>" . esc_attr( $option_val ) . "</textarea>" .
 		     "<p><em>Enter custom styles here. " .

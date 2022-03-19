@@ -69,10 +69,10 @@ final class Mandala {
 	 * Mandala Constructor.
 	 */
 	public function __construct() {
-		$this->redirect_check();
-		$this->define_constants();
-		$this->includes();
+		$this->redirect_check();  // do before set up because it exits if redirect is triggered
+		$this->setup();
 		$this->add_shortcodes();
+		$this->add_widgets();
 		$this->add_filters();
 		$this->enqueue_scripts();
 		$this->enqueue_styles();
@@ -91,22 +91,16 @@ final class Mandala {
 	}
 
 	/**
-	 * Define Mandala Constants.
+	 * Define Mandala Constants and perform includes.
 	 */
-	private function define_constants() {
+	private function setup() {
 		define('MANDALA_HOME', plugin_dir_path(__FILE__) );
 		define('MANDALA_APP_PATH', MANDALA_HOME . 'app/');
 		define('MANDALA_ASSET_MANIFEST', MANDALA_APP_PATH . 'build/asset-manifest.json');
 		define('MANDALA_INCLUDES', MANDALA_HOME . 'includes/');
 		define('MANDALA_ADMIN', MANDALA_HOME . 'admin/');
-	}
-
-	/**
-	 *
-	 * Define Mandala includes.
-	 */
-	private function includes() {
 		require_once(MANDALA_ADMIN . 'class-mandala-admin.php');  // Admin Class
+		require_once(MANDALA_INCLUDES . 'class-mandala-widget.php'); // Widget Class
 	}
 
 	/**
@@ -130,6 +124,7 @@ final class Mandala {
 			$form = file_get_contents(MANDALA_INCLUDES . 'advanced-search.php');
 			return $form;
 		});
+
 	}
 
 	/**
@@ -149,6 +144,14 @@ final class Mandala {
 			$templates[plugin_dir_path(__FILE__) . 'templates/page-custom.php'] = 'Custom Mandala Page Template';
 			return $templates;
 		});
+	}
+
+	public function add_widgets() {
+		add_action( 'widgets_init', array($this, 'add_widget_action') );
+	}
+
+	public function add_widget_action() {
+		register_widget( 'mandala_widget' );
 	}
 
 	/**
@@ -210,6 +213,7 @@ final class Mandala {
 		}
 	}
 
+
 	/**
 	 * Function to add actions to the theme hooks named in the admin settings page
 	 * The actions defined below insert the shortcodes for mandala root, global search, and advanced search
@@ -225,10 +229,13 @@ final class Mandala {
 
 		// Do not add hook actions if checkbox is not checked so just return
 		if (empty($options['automatic_insert'])) {
+			error_log("Automatic insert disabled!");
 			return;
 		}
 
 		if (!empty($options['main_hook_name'])) {
+
+			error_log("Adding mandala root action: " . $options['main_hook_name']);
 			add_action($options['main_hook_name'], array($this, 'add_mandala_root'));
 		}
 
@@ -256,9 +263,13 @@ final class Mandala {
 	 * Adds Shortcode for mandala root (<div id="mandala-root"></div>)
 	 */
 	public function add_mandala_root() {
+		error_log("In add mandala root");
 		$page_id = get_queried_object_id();
 		if (Mandala::shortcodesOn($page_id)) {
+			error_log("Adding mandala root shortening code! Mama's little baby loves it.");
 			echo do_shortcode( '[mandalaroot]' );
+		} else {
+			error_log("shortcodes off for this page: " . $page_id);
 		}
 	}
 
