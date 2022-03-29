@@ -303,7 +303,6 @@ final class Mandala {
 		remove_action($hookname, array($this, $callback));
 	}
 
-
 }
 
 
