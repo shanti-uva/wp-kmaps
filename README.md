@@ -36,4 +36,15 @@ turned off, and they can be inserted directly into a custom theme or on a page b
 The React app listens for hashes, and when a hash matches one of the apps routes, the app will load Mandala content 
 into the element `<div id="mandala-root"></div>` as described above.
 
+# Mandala Kadence Theme
+This plugin has been refactored to work with any WP theme with the hook settings for this plugin, the widget defined 
+here that can be used for sidebars etc., and the shortcodes which can be placed directly in custom templates or 
+individual pages. By using some or all of these methods, Mandala content can be added to any theme.
 
+However, we have also developed a special child-theme of Kadence, specifically meant for designing sites with 
+Mandala content. This theme is [Mandala Kadence](https://github.com/shanti-uva/mandala-kadence).
+
+# Subsites
+The early version of this plugin included code for creating custom "subsites", portions of a site with their own unique 
+menus and titles. However, in refactoring the plugin, it made more sense to include this functionality in the
+[Mandala Kadence](https://github.com/shanti-uva/mandala-kadence) theme. 

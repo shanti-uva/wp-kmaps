@@ -234,8 +234,6 @@ final class Mandala {
 		}
 
 		if (!empty($options['main_hook_name'])) {
-
-			error_log("Adding mandala root action: " . $options['main_hook_name']);
 			add_action($options['main_hook_name'], array($this, 'add_mandala_root'));
 		}
 
@@ -266,10 +264,7 @@ final class Mandala {
 		error_log("In add mandala root");
 		$page_id = get_queried_object_id();
 		if (Mandala::shortcodesOn($page_id)) {
-			error_log("Adding mandala root shortening code! Mama's little baby loves it.");
 			echo do_shortcode( '[mandalaroot]' );
-		} else {
-			error_log("shortcodes off for this page: " . $page_id);
 		}
 	}
 
