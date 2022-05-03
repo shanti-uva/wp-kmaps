@@ -60,11 +60,19 @@
     // Function to add "mandala" class to body when a link with a mandala hash is clickec
     // This has the effect of immediately hiding the WP content before the mandala content loads
     $('body').on('click', 'a', function () {
+        window.scrollTo(0,0);
         const ael = $(this);
         const href = ael.attr('href');
         if (href.includes('#/')) {
             $('body').addClass('mandala');
         }
     });
+
+    // 'mandala' body class is added automatically by plugin php, this hides mandala page content
+    // Remove it here if there is no has to load Mandala content
+    const hash = window.location.hash;
+    if (hash === '' || hash === '#/') {
+        $('body').removeClass('mandala');
+    }
 
 })(jQuery);

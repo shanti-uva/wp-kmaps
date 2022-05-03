@@ -144,6 +144,14 @@ final class Mandala {
 			$templates[plugin_dir_path(__FILE__) . 'templates/page-custom.php'] = 'Custom Mandala Page Template';
 			return $templates;
 		});
+
+		// Add "mandala" body class so content hidden by default
+		// Content revealed if there is no hash
+		add_filter( 'body_class','add_mandala_class' );
+		function add_mandala_class( $classes ) {
+			$classes[] = 'mandala';
+			return $classes;
+		}
 	}
 
 	public function add_widgets() {
