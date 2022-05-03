@@ -150,6 +150,7 @@ final class Mandala {
 		add_filter( 'body_class','add_mandala_class' );
 		function add_mandala_class( $classes ) {
 			$classes[] = 'mandala';
+			$classes[] = 'devtest';
 			return $classes;
 		}
 	}
