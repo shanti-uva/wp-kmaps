@@ -72,6 +72,7 @@
     // Remove it here if there is no has to load Mandala content
     const hash = window.location.hash;
     if (hash === '' || hash === '#/') {
+        console.log("removing mandala. Hash is: " + hash)
         $('body').removeClass('mandala');
     }
 
