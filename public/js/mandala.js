@@ -57,4 +57,14 @@
             }, 10);
         });
 
+    // Function to add "mandala" class to body when a link with a mandala hash is clickec
+    // This has the effect of immediately hiding the WP content before the mandala content loads
+    $('body').on('click', 'a', function () {
+        const ael = $(this);
+        const href = ael.attr('href');
+        if (href.includes('#/')) {
+            $('body').addClass('mandala');
+        }
+    });
+
 })(jQuery);

@@ -261,7 +261,7 @@ final class Mandala {
 	 * Adds Shortcode for mandala root (<div id="mandala-root"></div>)
 	 */
 	public function add_mandala_root() {
-		error_log("In add mandala root");
+		// error_log("In add mandala root");
 		$page_id = get_queried_object_id();
 		if (Mandala::shortcodesOn($page_id)) {
 			echo do_shortcode( '[mandalaroot]' );
