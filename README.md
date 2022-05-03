@@ -25,7 +25,7 @@ the mandala main content page, and the side-column is inserted where ever that l
 * `[madvsearch]` : This optional shortcode inserts just the advanced search side column and must be used in conjuction with 
 the above `[mandalaroot]` shortcode. It inserts the element `<div id='advancedSearchPortal'></div>` wherever it is 
 found.
-* `mandalaglobalsearch` : This required shortcode inserts the searchbox to be used for searching Mandala content. 
+* `[mandalaglobalsearch]` : This required shortcode inserts the searchbox to be used for searching Mandala content. 
 It is not required but recommended. It inserts the element `<span id='basicSearchPortal'></span>` wherever it is 
 found.
 
