@@ -70,12 +70,12 @@
             if ($('#shanti-texts-body')?.length === 1) {
                 // For Footnotes in texts use anchors to scroll not as paths.
                 const curroff = ael.offset().top;
-                const currscroll = txtcnt.scrollTop();
+                const currscroll = $('#shanti-texts-body').scrollTop();
                 let offtop = $(anchor_ref).offset().top;
                 // console.log(`curroff: ${curroff}, anchoroff: ${offtop}, curr scroll: ${currscroll}`);
                 offtop = currscroll + offtop - 175;
                 if (!isNaN(offtop)) {
-                    txtcnt.scrollTop(offtop);
+                    $('#shanti-texts-body').scrollTop(offtop);
                 }
                 return false;
             } else {
