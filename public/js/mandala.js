@@ -61,23 +61,26 @@
     // This has the effect of immediately hiding the WP content before the mandala content loads
     $('body').on('click', 'a', function () {
         const ael = $(this);
-        // console.log("ael", ael);
         const anchor_ref = ael.data('anchor-ref');
         const href = ael.attr('href');
         if (href?.includes('#/')) {
             window.scrollTo(0,0);
             $('body').addClass('mandala');
-        } else if (anchor_ref?.length > 0 && $('#shanti-texts-body')?.length === 1) {
-            // For Footnotes in texts use anchors to scroll not as paths.
-            const curroff = ael.offset().top;
-            const currscroll = $('#shanti-texts-body').scrollTop();
-            let offtop = $(anchor_ref).offset().top;
-            // console.log(`curroff: ${curroff}, anchoroff: ${offtop}, curr scroll: ${currscroll}`);
-            offtop = currscroll + offtop - 175;
-            if (!isNaN(offtop)) {
-                $('#shanti-texts-body').scrollTop(offtop);
+        } else if (anchor_ref?.length > 0) {
+            if ($('#shanti-texts-body')?.length === 1) {
+                // For Footnotes in texts use anchors to scroll not as paths.
+                const curroff = ael.offset().top;
+                const currscroll = txtcnt.scrollTop();
+                let offtop = $(anchor_ref).offset().top;
+                // console.log(`curroff: ${curroff}, anchoroff: ${offtop}, curr scroll: ${currscroll}`);
+                offtop = currscroll + offtop - 175;
+                if (!isNaN(offtop)) {
+                    txtcnt.scrollTop(offtop);
+                }
+                return false;
+            } else {
+                $(anchor_ref).get(0).scrollIntoView();
             }
-            return false;
         }
     });
 
