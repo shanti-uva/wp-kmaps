@@ -75,7 +75,9 @@
                 // console.log(`curroff: ${curroff}, anchoroff: ${offtop}, curr scroll: ${currscroll}`);
                 offtop = currscroll + offtop - 175;
                 if (!isNaN(offtop)) {
-                    $('#shanti-texts-body').scrollTop(offtop);
+                    $('#shanti-texts-body').animate({
+                        scrollTop: offtop
+                    }, 800);
                 }
                 return false;
             } else {
