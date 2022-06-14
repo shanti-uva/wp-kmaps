@@ -86,6 +86,15 @@
         }
     });
 
+    // Use Hash Listener to determine when hash is removed and re-expose WP site by removing mandala class from body
+    // Mainly for back button cases
+    window.addEventListener('hashchange', function() {
+        const hv = window.location.hash;
+        if (['', '#/', '#'].includes(hv)) {
+            $('body').removeClass('mandala');
+        }
+    }, false);
+
     // 'mandala' body class is added automatically by plugin php, this hides mandala page content
     // Remove it here if there is no has to load Mandala content
     const hash = window.location.hash;
