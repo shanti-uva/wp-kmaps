@@ -94,11 +94,32 @@
     }
 
     // Use Hash Listener to determine when hash is removed and re-expose WP site by removing mandala class from body
-    // Mainly for back button cases
+    // Mainly for back button cases, but also for menu-highlighting
     window.addEventListener('hashchange', function() {
         const hv = window.location.hash;
         if (['', '#/', '#'].includes(hv)) {
-            $('body').removeClass('mandala');
+            $('body').removeClass('mandala');  // remove mandala body class allows WP content to show
+            // Highlight the home menu item and remove any previous highlighted items
+            $('#primary-menu .current-menu-item').removeClass('current-menu-item');
+            $('#primary-menu .menu-item-home').addClass('current-menu-item');
+        } else {
+            // Look for submenu items and highlight the parent
+            let mi = false;
+            $('#primary-menu li.menu-item a').each(function (i) {
+                let eh = $(this).attr('href');
+                if (eh.includes('/#/')) {
+                    // remove the domain or path if there is one to just compare hashes
+                    const ehpts = eh.split('/#/');
+                    eh = '#/' + ehpts[1];
+                }
+                // If menu item found with href same as current hash, then highlight it
+                if (eh == hv) {
+                    if ($(this).parents('.sub-menu').length > 0) {
+                        $('#primary-menu .current-menu-item').removeClass('current-menu-item');
+                        $(this).parents('.sub-menu').eq(0).parent().addClass('current-menu-item');
+                    }
+                }
+            });
         }
     }, false);
 
