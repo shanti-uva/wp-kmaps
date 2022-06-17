@@ -97,12 +97,14 @@
     // Mainly for back button cases, but also for menu-highlighting
     window.addEventListener('hashchange', function() {
         const hv = window.location.hash;
-        if (['', '#/', '#'].includes(hv)) {
+        if (['', '#/', '#'].includes(hv)) {  // When there is no hash
             $('body').removeClass('mandala');  // remove mandala body class allows WP content to show
             // Highlight the home menu item and remove any previous highlighted items
             $('#primary-menu .current-menu-item').removeClass('current-menu-item');
             $('#primary-menu .menu-item-home').addClass('current-menu-item');
         } else {
+            // When there is a hash, add mandala class and highlight appropriate menu item
+            $('body').addClass('mandala');
             // Look for submenu items and highlight the parent
             let mi = false;
             $('#primary-menu li.menu-item a').each(function (i) {
