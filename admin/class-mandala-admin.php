@@ -87,51 +87,42 @@ class Mandala_Admin {
             array($this, 'advance_search_hook_name_field'),
             'mandala_settings',
             'mandala_hook_names');
+        /*
+	    add_settings_field(
+		    'default_sidebar',
+		    'Default Sidebar',
+		    array($this, 'default_sidebar_field'),
+		    'mandala_settings',
+		    'mandala_hook_names');
+        */
 	    add_settings_section(
-		    'mandala_custom_styles',
-		    'Custom Styles for Mandala',
-		    array($this, 'custom_styles_section'),
+		    'other_settings_section',
+		    'Other Settings',
+		    array($this, 'other_settings_section'),
 		    'mandala_settings');
 	    add_settings_field(
-		    'custom_styles',
-		    'Custom Styles',
-		    array($this, 'custom_styles_field'),
+		    'default_sidebar',
+		    'Default Sidebar',
+		    array($this, 'default_sidebar_field'),
 		    'mandala_settings',
-		    'mandala_custom_styles');
+		    'other_settings_section');
 
     }
-
+/*
     public function options_validate($input) {
         // Input keys are ["automatic_insert","main_hook_name","search_hook_name","advanced_search_hook_name","custom_styles"]
         $hook_fields = ["main_hook_name","search_hook_name","advanced_search_hook_name"];
-        /*
-        This does not work: throws warning if theme hook has not been used and then uses it so that on
-        second save no error is thrown. Need a way to get theme hooks even if they haven't been instatiated.
-
-        foreach($hook_fields as $hfield) {
-	        $value  = $input[$hfield];
-            if (!empty($value) && !has_action($value)) {
-                $label = preg_replace("/\_/", " ", $hfield);
-	            add_settings_error($label, esc_attr( $hfield ),
-		            "The hook for <span class='capitalize'>$label</span> (<span class='pre'>$value</span>) does not exist!", 'error');
-            }
-        }
-        */
-        // Check custom CSS styles
-        if (!empty($input["custom_styles"])) {
-            // Check and santize css styles
-	        $input["custom_styles"] = $this->check_css_styles($input["custom_styles"]);
-        }
 
         return $input;
     }
-
+*/
 	/**
      * Checks and sanitizes custom CSS styles
 	 * @param $styles
 	 *
 	 * @return string
 	 */
+    /*
     private function check_css_styles($styles) {
 	    $sanitized_styles = sanitize_textarea_field($styles);
 	    $validator_url = 'https://jigsaw.w3.org/css-validator/validator?output=json&text=';
@@ -154,7 +145,7 @@ class Mandala_Admin {
 	    }
 	    return $sanitized_styles;
     }
-
+*/
 	public function automatic_insert_field() {
 		$options = get_option( 'mandala_plugin_options' );
         $check_val = $options['automatic_insert'] ?? 0;
@@ -194,19 +185,18 @@ class Mandala_Admin {
 		     "type='text' value='" . esc_attr( $option_val ) . "' /><p><em>Where to place the mandala <strong>advanced</strong> search box.</em></p>";
 	}
 
-	public function custom_styles_section() {
-		echo "<p>In this area you can enter custom styles to be used on the site.</p>" .
+	public function other_settings_section() {
+		echo "<p>These are miscellaneous other settings for the Mandala plugin.</p>" .
 		     "<div id='styles_messages'></div>";
 	}
 
-	public function custom_styles_field() {
+	public function default_sidebar_field() {
 		$options = get_option( 'mandala_plugin_options' );
-		$option_val = !empty($options['custom_styles']) ? $options['custom_styles'] : '';
-        error_log(json_encode($options, JSON_PRETTY_PRINT));
-		echo "<textarea id='mandala_custom_styles' name='mandala_plugin_options[custom_styles]' " .
-		     "rows='25' cols='130'>" . esc_attr( $option_val ) . "</textarea>" .
-		     "<p><em>Enter custom styles here. " .
-		     "Use the prefix “.mandala ” to target pages showing Mandala content</em></p>";
+		$option_val = !empty($options['default_sidebar']) ? $options['default_sidebar'] : '';
+        $advsel = ($option_val == 1) ? " selected='selected'" : '';
+        $browsel = ($option_val == 2) ? " selected='selected'" : '';
+		echo "<select id='mandala_default_sidebar' name='mandala_plugin_options[default_sidebar]' >" .
+		    "<option value='1'$advsel>Advanced Search</option><option value='2'$browsel>Browse Trees</option></select>";
 	}
 
 	public function settings_page() {

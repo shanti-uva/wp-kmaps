@@ -78,6 +78,7 @@ final class Mandala {
 		$this->enqueue_styles();
 		$this->enqueue_mandala_manifest();
 		$this->add_mandala();
+		// q$this->add_custom_data();
 	}
 
 	private function redirect_check() {
@@ -163,6 +164,11 @@ final class Mandala {
 		register_widget( 'mandala_widget' );
 	}
 
+	public function add_custom_data() {
+		$options = get_option( 'mandala_plugin_options' );
+		$sbval = !empty($options['default_sidebar']) ? $options['default_sidebar'] : '';
+	}
+
 	/**
 	 * Define Mandala enqueue_scripts.
 	 */
@@ -171,6 +177,7 @@ final class Mandala {
 			wp_enqueue_script( 'googlemaps', esc_url_raw( 'https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAXpnXkPS39-Bo5ovHQWvyIk6eMgcvc1q4&amp;sensor=false' ), array(), null );
 			wp_enqueue_script( 'jquery-resizable', plugins_url( "jquery-resizable.min.js", __FILE__ ), array( 'jquery' ), '1.0', true );
 			wp_enqueue_script( 'mandala-js', plugins_url( "public/js/mandala.js", __FILE__ ), array( 'jquery' ), '1.0', true );
+
 		}
 	}
 
@@ -232,9 +239,6 @@ final class Mandala {
 	{
 		// Add using the hook defined in settings
 		$options = get_option( 'mandala_plugin_options' );
-		if (!empty($options['custom_styles'])) {
-			add_action('wp_head', array($this, 'add_custom_styles'));
-		}
 
 		// Do not add hook actions if checkbox is not checked so just return
 		if (empty($options['automatic_insert'])) {
@@ -256,15 +260,6 @@ final class Mandala {
 	}
 
 	// Add Functions called from the add actions in add_mandala()
-
-	/**
-	 * Adds custom styles from settings to header in style tag
-	 */
-	public function add_custom_styles() {
-		//error_log("adding custom styles...");
-		$options = get_option( 'mandala_plugin_options' );
-		echo "<style id='mandala-custom-styles' type='text/css'>{$options['custom_styles']}</style>";
-	}
 
 	/**
 	 * Adds Shortcode for mandala root (<div id="mandala-root"></div>)
