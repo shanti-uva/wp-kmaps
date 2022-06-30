@@ -78,7 +78,6 @@ final class Mandala {
 		$this->enqueue_styles();
 		$this->enqueue_mandala_manifest();
 		$this->add_mandala();
-		// q$this->add_custom_data();
 	}
 
 	private function redirect_check() {
@@ -162,11 +161,6 @@ final class Mandala {
 
 	public function add_widget_action() {
 		register_widget( 'mandala_widget' );
-	}
-
-	public function add_custom_data() {
-		$options = get_option( 'mandala_plugin_options' );
-		$sbval = !empty($options['default_sidebar']) ? $options['default_sidebar'] : '';
 	}
 
 	/**
