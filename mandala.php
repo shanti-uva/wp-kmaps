@@ -169,7 +169,7 @@ final class Mandala {
 	private function enqueue_scripts() {
 		if (!is_admin()) {
 			wp_enqueue_script( 'googlemaps', esc_url_raw( 'https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAXpnXkPS39-Bo5ovHQWvyIk6eMgcvc1q4&amp;sensor=false' ), array(), null );
-			wp_enqueue_script( 'jquery-resizable', plugins_url( "jquery-resizable.min.js", __FILE__ ), array( 'jquery' ), '1.0', true );
+			wp_enqueue_script( 'jquery-resizable', plugins_url( "public/js/jquery-resizable.min.js", __FILE__ ), array( 'jquery' ), '1.0', true );
 			wp_enqueue_script( 'mandala-js', plugins_url( "public/js/mandala.js", __FILE__ ), array( 'jquery' ), '1.0', true );
 
 		}
