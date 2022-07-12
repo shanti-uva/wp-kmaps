@@ -87,14 +87,6 @@ class Mandala_Admin {
             array($this, 'advance_search_hook_name_field'),
             'mandala_settings',
             'mandala_hook_names');
-        /*
-	    add_settings_field(
-		    'default_sidebar',
-		    'Default Sidebar',
-		    array($this, 'default_sidebar_field'),
-		    'mandala_settings',
-		    'mandala_hook_names');
-        */
 	    add_settings_section(
 		    'other_settings_section',
 		    'Other Settings',
