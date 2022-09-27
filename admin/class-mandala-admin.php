@@ -98,6 +98,12 @@ class Mandala_Admin {
 		    array($this, 'default_sidebar_field'),
 		    'mandala_settings',
 		    'other_settings_section');
+        add_settings_field(
+            'hash_exceptions',
+            'Hash Exceptions',
+            array($this, 'hash_exception_field'),
+            'mandala_settings',
+            'other_settings_section');
 
     }
 /*
@@ -190,6 +196,19 @@ class Mandala_Admin {
 		echo "<select id='mandala_default_sidebar' name='mandala_plugin_options[default_sidebar]' >" .
 		    "<option value='1'$advsel>Advanced Search</option><option value='2'$browsel>Browse Trees</option></select>";
 	}
+
+    public function hash_exception_field() {
+        $options = get_option( 'mandala_plugin_options' );
+        $option_val = !empty($options['hash_exceptions']) ? $options['hash_exceptions'] : '';
+        echo <<<EOT
+            <div class='field-wrapper'>
+                <textarea id='mandala_hash_exceptions' 
+                          name='mandala_plugin_options[hash_exceptions]' 
+                          rows="20" cols="40">$option_val</textarea>
+                <p>Enter hash paths (including the hash) that you want the Mandala plugin to ignore (one per line).</p>
+            </div>
+        EOT;
+    }
 
 	public function settings_page() {
 		add_options_page( 'Mandala Plugin Settings', 'Mandala',

@@ -89,7 +89,8 @@
     // 'mandala' body class is added automatically by plugin php, this hides mandala page content
     // Remove it here if there is no has to load Mandala content
     const hash = window.location.hash;
-    if (hash === '' || hash === '#/') {
+    const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
+    if (hash === '' || hash === '#/' || he?.includes(hash)) {
         $('body').removeClass('mandala');
     }
 
@@ -97,7 +98,8 @@
     // Mainly for back button cases, but also for menu-highlighting
     window.addEventListener('hashchange', function() {
         const hv = window.location.hash;
-        if (['', '#/', '#'].includes(hv)) {  // When there is no hash
+        const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
+        if (['', '#/', '#'].includes(hv) || he?.includes(hv)) {  // When there is no hash or its an exception
             $('body').removeClass('mandala');  // remove mandala body class allows WP content to show
             // Highlight the home menu item and remove any previous highlighted items
             $('#primary-menu .current-menu-item').removeClass('current-menu-item');
