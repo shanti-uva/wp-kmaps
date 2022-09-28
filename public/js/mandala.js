@@ -103,7 +103,7 @@
             console.log("removing mandala class");
             $('body').removeClass('mandala');
         }
-    }, 300);
+    }, 100);
 
     // Use Hash Listener to determine when hash is removed and re-expose WP site by removing mandala class from body
     // Mainly for back button cases, but also for menu-highlighting
