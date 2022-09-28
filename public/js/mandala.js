@@ -96,12 +96,14 @@
 
     // 'mandala' body class is added automatically by plugin php, this hides mandala page content
     // Remove it here if there is no has to load Mandala content
-    const hash = window.location.hash;
-    const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
-    if (hash === '' || hash === '#/' || he?.includes(hash)) {
-        console.log("removing mandala class");
-        $('body').removeClass('mandala');
-    }
+    setTimeout(function() {
+        const hash = window.location.hash;
+        const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
+        if (hash === '' || hash === '#/' || he?.includes(hash)) {
+            console.log("removing mandala class");
+            $('body').removeClass('mandala');
+        }
+    }, 300);
 
     // Use Hash Listener to determine when hash is removed and re-expose WP site by removing mandala class from body
     // Mainly for back button cases, but also for menu-highlighting
