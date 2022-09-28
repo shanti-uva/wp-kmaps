@@ -69,6 +69,8 @@
             if (!he.includes(hash)) {
                 window.scrollTo(0, 0);
                 $('body').addClass('mandala');
+
+                console.log("added mandala class in on click");
             } else {
                 console.log("Skipping hash in link");
             }
@@ -106,7 +108,7 @@
     window.addEventListener('hashchange', function() {
         const hv = window.location.hash;
         const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
-        consoel.log("hash: " + hv, he);
+        console.log("hash: " + hv, he);
         if (['', '#/', '#'].includes(hv) || he?.includes(hv)) {  // When there is no hash or its an exception
             $('body').removeClass('mandala');  // remove mandala body class allows WP content to show
             console.log("removing mandala in listenter");
@@ -116,6 +118,7 @@
         } else {
             // When there is a hash, add mandala class and highlight appropriate menu item
             $('body').addClass('mandala');
+            console.log("added mandala class in event listerner");
             // Look for submenu items and highlight the parent
             let mi = false;
             $('#primary-menu li.menu-item a').each(function (i) {
