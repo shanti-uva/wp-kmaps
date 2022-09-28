@@ -64,8 +64,14 @@
         const anchor_ref = ael.data('anchor-ref');
         const href = ael.attr('href');
         if (href?.includes('#/')) {
-            window.scrollTo(0,0);
-            $('body').addClass('mandala');
+            const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page
+            const hash = '#/' + href.split("#/")[1];
+            if (!he.includes(hash)) {
+                window.scrollTo(0, 0);
+                $('body').addClass('mandala');
+            } else {
+                console.log("Skipping hash in link");
+            }
         } else if (anchor_ref?.length > 0) {
             if ($('#shanti-texts-body')?.length === 1) {
                 // For Footnotes in texts use anchors to scroll not as paths.
@@ -91,6 +97,7 @@
     const hash = window.location.hash;
     const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
     if (hash === '' || hash === '#/' || he?.includes(hash)) {
+        console.log("removing mandala class");
         $('body').removeClass('mandala');
     }
 
@@ -99,8 +106,10 @@
     window.addEventListener('hashchange', function() {
         const hv = window.location.hash;
         const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
+        consoel.log("hash: " + hv, he);
         if (['', '#/', '#'].includes(hv) || he?.includes(hv)) {  // When there is no hash or its an exception
             $('body').removeClass('mandala');  // remove mandala body class allows WP content to show
+            console.log("removing mandala in listenter");
             // Highlight the home menu item and remove any previous highlighted items
             $('#primary-menu .current-menu-item').removeClass('current-menu-item');
             $('#primary-menu .menu-item-home').addClass('current-menu-item');
