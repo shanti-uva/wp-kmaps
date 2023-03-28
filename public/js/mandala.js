@@ -68,11 +68,9 @@
             const hash = '#/' + href.split("#/")[1];
             if (!he.includes(hash)) {
                 window.scrollTo(0, 0);
-                $('body').addClass('mandala');
-
-                console.log("added mandala class in on click");
-            } else {
-                console.log("Skipping hash in link");
+                if (!$('body').hasClass('mandala')) {
+                    $('body').addClass('mandala');
+                }
             }
         } else if (anchor_ref?.length > 0) {
             if ($('#shanti-texts-body')?.length === 1) {
@@ -98,19 +96,18 @@
     // Remove it here if there is no has to load Mandala content
     setTimeout(function() {
         const hash = window.location.hash;
-        const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
+        const he = mandala_settings?.hash_exceptions; // hash exceptions are set in the admin page and added as a js object
         if (hash === '' || hash === '#/' || he?.includes(hash)) {
-            console.log("removing mandala class");
             $('body').removeClass('mandala');
+            setTimeout(function() {$('body').removeClass('mandala');}, 5000); /// just in case
         }
-    }, 300);
+    }, 500);
 
     // Use Hash Listener to determine when hash is removed and re-expose WP site by removing mandala class from body
     // Mainly for back button cases, but also for menu-highlighting
     window.addEventListener('hashchange', function() {
         const hv = window.location.hash;
         const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
-        console.log("hash: " + hv, he);
         if (['', '#/', '#'].includes(hv) || he?.includes(hv)) {  // When there is no hash or its an exception
             $('body').removeClass('mandala');  // remove mandala body class allows WP content to show
             console.log("removing mandala in listenter");
@@ -119,8 +116,7 @@
             $('#primary-menu .menu-item-home').addClass('current-menu-item');
         } else {
             // When there is a hash, add mandala class and highlight appropriate menu item
-            $('body').addClass('mandala');
-            console.log("added mandala class in event listerner");
+            if (!$('body').hasClass('mandala')) { $('body').addClass('mandala'); }
             // Look for submenu items and highlight the parent
             let mi = false;
             $('#primary-menu li.menu-item a').each(function (i) {

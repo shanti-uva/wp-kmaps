@@ -177,7 +177,7 @@ final class Mandala {
             $hash_exceptions = !empty($options['hash_exceptions']) ? $options['hash_exceptions'] : '';
             $hash_exceptions = explode("\n", $hash_exceptions);
             $hash_exceptions = array_map(function($item) { return trim($item); }, $hash_exceptions);
-            $hash_exceptions = 'window.mandala = { hash_execptions: ' . json_encode($hash_exceptions) . '};';
+            $hash_exceptions = 'var mandala_settings = { hash_exceptions: ' . json_encode($hash_exceptions) . '};';
             wp_add_inline_script( 'mandala-js', $hash_exceptions);
 		}
 	}
