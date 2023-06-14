@@ -59,13 +59,31 @@
 
     // Function to add "mandala" class to body when a link with a mandala hash is clickec
     // This has the effect of immediately hiding the WP content before the mandala content loads
-    $('body').on('click', 'a', function () {
+    /*$('body a').mousedown(function(e) {
+        console.log("event in mousedown", e);
+        switch (e.which) {
+            case 1:
+                alert("left mouse clic");
+                break;
+            case 2:
+                alert('Middle Mouse button pressed.');
+                break;
+            case 3:
+                alert('Right Mouse button pressed.');
+                break;
+            default:
+                alert('You have a strange Mouse!');
+        }
+    });*/
+    $('body').on('click', 'a', function (e) {
         const ael = $(this);
         const anchor_ref = ael.data('anchor-ref');
         const href = ael.attr('href');
         if (href?.includes('#/')) {
             window.scrollTo(0,0);
-            $('body').addClass('mandala');
+            if (e.originalEvent.which === 1 && e.originalEvent.metaKey === false) {
+                $('body').addClass('mandala');
+            }
         } else if (anchor_ref?.length > 0) {
             if ($('#shanti-texts-body')?.length === 1) {
                 // For Footnotes in texts use anchors to scroll not as paths.

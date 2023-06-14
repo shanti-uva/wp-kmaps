@@ -145,7 +145,7 @@ final class Mandala {
 			return $templates;
 		});
 
-		// Add "mandala" body class so content hidden by default
+		// Add "mandala" body class so content hidden by default and doesn't flash if going directly to mandala content
 		// Content revealed if there is no hash
 		add_filter( 'body_class','add_mandala_class' );
 		function add_mandala_class( $classes ) {
