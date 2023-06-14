@@ -59,33 +59,18 @@
 
     // Function to add "mandala" class to body when a link with a mandala hash is clickec
     // This has the effect of immediately hiding the WP content before the mandala content loads
-    /*$('body a').mousedown(function(e) {
-        console.log("event in mousedown", e);
-        switch (e.which) {
-            case 1:
-                alert("left mouse clic");
-                break;
-            case 2:
-                alert('Middle Mouse button pressed.');
-                break;
-            case 3:
-                alert('Right Mouse button pressed.');
-                break;
-            default:
-                alert('You have a strange Mouse!');
-        }
-    });*/
     $('body').on('click', 'a', function (e) {
+        console.log("event in body a click", e);
         const ael = $(this);
         const anchor_ref = ael.data('anchor-ref');
         const href = ael.attr('href');
         if (href?.includes('#/')) {
             const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page
             const hash = '#/' + href.split("#/")[1];
-            if (!he.includes(hash)) {
+            if (!he || !he.includes(hash)) {
+                console.log('event in mandala.js', e);
                 window.scrollTo(0, 0);
                 if (!$('body').hasClass('mandala') && e.originalEvent.which === 1 && e.originalEvent.metaKey === false) {
-                    // if (e.originalEvent.which === 1 && e.originalEvent.metaKey === false) {
                     $('body').addClass('mandala');
                 }
             }
