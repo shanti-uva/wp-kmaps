@@ -110,7 +110,7 @@
         const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
         if (['', '#/', '#'].includes(hv) || he?.includes(hv)) {  // When there is no hash or its an exception
             $('body').removeClass('mandala');  // remove mandala body class allows WP content to show
-            console.log("removing mandala in listenter");
+            // console.log("removing mandala in listener");
             // Highlight the home menu item and remove any previous highlighted items
             $('#primary-menu .current-menu-item').removeClass('current-menu-item');
             $('#primary-menu .menu-item-home').addClass('current-menu-item');
