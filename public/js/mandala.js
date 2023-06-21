@@ -99,14 +99,14 @@
         const he = mandala_settings?.hash_exceptions; // hash exceptions are set in the admin page and added as a js object
         if (hash === '' || hash === '#/' || he?.includes(hash)) {
             $('body').removeClass('mandala');
-            setTimeout(function() {$('body').removeClass('mandala');}, 5000); /// just in case
         }
     }, 500);
 
     // Use Hash Listener to determine when hash is removed and re-expose WP site by removing mandala class from body
     // Mainly for back button cases, but also for menu-highlighting
-    window.addEventListener('hashchange', function() {
+    window.addEventListener('hashchange', function(e) {
         const hv = window.location.hash;
+        // console.log('hv is', hv);
         const he = window?.mandala?.hash_execptions; // hash exceptions are set in the admin page and added as a js object
         if (['', '#/', '#'].includes(hv) || he?.includes(hv)) {  // When there is no hash or its an exception
             $('body').removeClass('mandala');  // remove mandala body class allows WP content to show
@@ -136,5 +136,4 @@
             });
         }
     }, false);
-
 })(jQuery);
