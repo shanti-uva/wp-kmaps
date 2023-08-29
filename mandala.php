@@ -172,13 +172,17 @@ final class Mandala {
 			wp_enqueue_script( 'jquery-resizable', plugins_url( "public/js/jquery-resizable.min.js", __FILE__ ), array( 'jquery' ), '1.0', true );
 			wp_enqueue_script( 'mandala-js', plugins_url( "public/js/mandala.js", __FILE__ ), array( 'jquery' ), '1.0', true );
 
-            // Add hash exception array to DOM
+            // Add hash exception mandala setting JS object in DOM
             $options = get_option( 'mandala_plugin_options' );
             $hash_exceptions = !empty($options['hash_exceptions']) ? $options['hash_exceptions'] : '';
             $hash_exceptions = explode("\n", $hash_exceptions);
             $hash_exceptions = array_map(function($item) { return trim($item); }, $hash_exceptions);
-            $hash_exceptions = 'var mandala_settings = { hash_exceptions: ' . json_encode($hash_exceptions) . '};';
-            wp_add_inline_script( 'mandala-js', $hash_exceptions);
+            $msettings = array(
+                'hash_exceptions' => $hash_exceptions,
+                'sidebar_state' => $options['default_sidebar'],
+            );
+            $mandala_settings = 'window.mandala_wp = ' . json_encode($msettings) . ';';
+            wp_add_inline_script( 'mandala-js', $mandala_settings);
 		}
 	}
 

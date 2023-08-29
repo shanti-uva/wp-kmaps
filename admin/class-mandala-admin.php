@@ -191,10 +191,13 @@ class Mandala_Admin {
 	public function default_sidebar_field() {
 		$options = get_option( 'mandala_plugin_options' );
 		$option_val = !empty($options['default_sidebar']) ? $options['default_sidebar'] : '';
+        $nonesel = ($option_val == 0) ? " selected='selected'" : '';
         $advsel = ($option_val == 1) ? " selected='selected'" : '';
         $browsel = ($option_val == 2) ? " selected='selected'" : '';
 		echo "<select id='mandala_default_sidebar' name='mandala_plugin_options[default_sidebar]' >" .
-		    "<option value='1'$advsel>Advanced Search</option><option value='2'$browsel>Browse Trees</option></select>";
+             "<option value='0'$nonesel>None</option>" .
+             "<option value='1'$advsel>Advanced Search</option>" .
+             "<option value='2'$browsel>Browse Trees</option></select>";
 	}
 
     public function hash_exception_field() {
