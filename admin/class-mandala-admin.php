@@ -194,10 +194,14 @@ class Mandala_Admin {
         $nonesel = ($option_val == 0) ? " selected='selected'" : '';
         $advsel = ($option_val == 1) ? " selected='selected'" : '';
         $browsel = ($option_val == 2) ? " selected='selected'" : '';
-		echo "<select id='mandala_default_sidebar' name='mandala_plugin_options[default_sidebar]' >" .
-             "<option value='0'$nonesel>None</option>" .
-             "<option value='1'$advsel>Advanced Search</option>" .
-             "<option value='2'$browsel>Browse Trees</option></select>";
+		echo "<div class='field-wrapper'>
+                <select id='mandala_default_sidebar' name='mandala_plugin_options[default_sidebar]' >
+                    <option value='0'$nonesel>None</option>
+                    <option value='1'$advsel>Advanced Search</option>
+                    <option value='2'$browsel>Browse Trees</option>
+                </select>
+                <p><em>Note:</em> Must clear all caches after changing this setting including minified caches!</p>
+            </div>";
 	}
 
     public function hash_exception_field() {
