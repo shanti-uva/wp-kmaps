@@ -96,7 +96,7 @@
     // Remove it here if there is no has to load Mandala content
     setTimeout(function() {
         const hash = window.location.hash;
-        const he = mandala_settings?.hash_exceptions; // hash exceptions are set in the admin page and added as a js object
+        const he = window?.mandala_wp?.hash_exceptions; // hash exceptions are set in the admin page and added as a js object
         if (hash === '' || hash === '#/' || he?.includes(hash)) {
             $('body').removeClass('mandala');
         }

@@ -172,7 +172,8 @@ final class Mandala {
 			wp_enqueue_script( 'jquery-resizable', plugins_url( "public/js/jquery-resizable.min.js", __FILE__ ), array( 'jquery' ), '1.0', true );
 			wp_enqueue_script( 'mandala-js', plugins_url( "public/js/mandala.js", __FILE__ ), array( 'jquery' ), '1.0', true );
 
-            // Add hash exception mandala setting JS object in DOM
+            // Add mandala_wp to window object
+            // window.mandala_wp contains settings for mandala (hash_exceptions, sidebar_state)
             $options = get_option( 'mandala_plugin_options' );
             $hash_exceptions = !empty($options['hash_exceptions']) ? $options['hash_exceptions'] : '';
             $hash_exceptions = explode("\n", $hash_exceptions);
