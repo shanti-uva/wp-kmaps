@@ -147,7 +147,7 @@ class Mandala_Admin {
 	public function automatic_insert_field() {
 		$options = get_option( 'mandala_plugin_options' );
         $check_val = $options['automatic_insert'] ?? 0;
-		echo "<input id='mandala_main_hook_name' name='mandala_plugin_options[automatic_insert]' type='checkbox' " .
+		echo "<input id='mandala_automatic_insert' name='mandala_plugin_options[automatic_insert]' type='checkbox' " .
 		     "value='1'" . checked( 1, $check_val, false ) . "' /><p></p>";
 	}
 
@@ -200,7 +200,7 @@ class Mandala_Admin {
                     <option value='1'$advsel>Advanced Search</option>
                     <option value='2'$browsel>Browse Trees</option>
                 </select>
-                <p><em>Note:</em> Must clear all caches after changing this setting including minified caches!</p>
+                <p>Choose which sidebar, if any, to show on initially coming to the site.</p>
             </div>";
 	}
 
@@ -223,7 +223,12 @@ class Mandala_Admin {
 	}
 
 	public function render_settings_page() {
-		?>
+        wp_cache_flush();
+        if ( class_exists('WP_Optimize_Minify_Cache_Functions') ) {
+            WP_Optimize()->get_page_cache()->purge();
+            WP_Optimize_Minify_Cache_Functions::reset();
+        }
+        ?>
 		<h2>Mandala Plugin Settings</h2>
 		<form action="options.php" method="post">
 			<?php
