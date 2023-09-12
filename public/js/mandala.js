@@ -1,46 +1,24 @@
 (function ($) {
     // Check to see if there are multiple nav elements
+    // TODO: Is this still necessary?
     $navs = $(".flourishing-main-wrapper .elementor-widget-wrap > .elementor-widget-nav-menu");
     if ($navs.length > 1) {
         $($navs[0]).attr('style', 'display:none !important');
         $($navs[1]).css('margin-top', '-23px');
-        //$($navs[1]).find('ul.elementor-nav-menu > li > a.menu-link').attr('style', 'background: inherit !important');
-
-        // Highlight the correct subsite menu link.
-        // $($navs[1]).find("a[href*='" + window.location.hash.substr(2) + "']").attr('style', 'background-color: #fff !important;color:#212529');
-
-        // // Get parent search params if one exists and use it to highlight subsite menu.
-        // let searchParams = new URLSearchParams(window.location.hash.split('?', 2)[1]);
-        // if (searchParams.has('parent')) {
-        //     $($navs[1]).find("a[href*='" + searchParams.get('parent') + "']").attr('style', 'background-color: #fff !important;color:#212529');
-        // }
-
-        // $(window).on('hashchange', function(e) {
-        //         $($navs[1]).find("a").attr('style', 'background-color:transparent !important');
-        //         $($navs[1]).find("a[href*='" + window.location.hash.substr(2) + "']").attr('style', 'background-color: #fff !important;color:#212529');
-        //         // Get parent search params if one exists and use it to highlight subsite menu.
-        //         searchParams = new URLSearchParams(window.location.hash.split('?', 2)[1]);
-        //         $($navs[1]).find("a[href*='" + searchParams.get('parent') + "']").attr('style', 'background-color: #fff !important;color:#212529');
-        // });
     }
 
-    //Resizable script
-    /*
-    $(".main-content-col").resizable({
-        handleSelector: ".vertical-splitter",
-        resizeHeight: false
-    });
-*/
-    // Move setting buttong into group (Do this in Mandala code)
+    // ****  Sidebar Setup **** //
+    // Move setting button into group (Do this in Mandala code?)
     $(document).ready(() => {
         $('#browseSearchPortal button#advanced-site-settings').appendTo($('#browseSearchPortal .c-MainSearchToggle--group'));
-
     });
 
+    // Hide sidebar on circle-x button clicks
     $('#secondary').on('click', '.search-column-close-filters, .treeNav-header__closeButton', (e) => {
         $('#secondary').hide();
     });
 
+    // Open sidebar when buttons in navbar are clicked
     $('#browseSearchPortal').on('click', '#advanced-search-tree-toggle, #main-search-tree-toggle',
         (e) => {
             if ($('#secondary').is(":hidden")) {
@@ -57,8 +35,10 @@
             }, 10);
         });
 
-    // Function to add "mandala" class to body when a link with a mandala hash is clickec
+    // **** Hash Processing ****//
+    // Function to add "mandala" class to body when a link with a mandala hash is clicked
     // This has the effect of immediately hiding the WP content before the mandala content loads
+    // TODO: check if this is still necessary or if it can be merged with "hashchange" code below
     $('body').on('click', 'a', function (e) {
         const ael = $(this);
         const anchor_ref = ael.data('anchor-ref');
@@ -92,14 +72,17 @@
         }
     });
 
-    // 'mandala' body class is added automatically by plugin php, this hides mandala page content
-    // Remove it here if there is no has to load Mandala content
+    // 'mandala' body class is initially added automatically by plugin php, this hides mandala page content
+    // Remove it here if there is no hash to load Mandala content
     setTimeout(function() {
         const hash = window.location.hash;
         const he = window?.mandala_wp?.hash_exceptions; // hash exceptions are set in the admin page and added as a js object
         if (hash === '' || hash === '#/' || he?.includes(hash)) {
             $('body').removeClass('mandala');
         }
+
+        // Remove loading class from body that hides both #primary and #secondary via styles.
+        $('body.loading').removeClass('loading');
     }, 500);
 
     // Use Hash Listener to determine when hash is removed and re-expose WP site by removing mandala class from body
@@ -136,4 +119,12 @@
             });
         }
     }, false);
+
+    // **** Handle WP Sidebar Menu **** //
+    const menu_id = $('#secondary .widget_nav_menu').eq(0).attr('id');
+    if (menu_id) {
+        if (window?.mandala_wp) {
+            window.mandala_wp.navmenu = menu_id;  // Add menu id to mandala_wp settings in window and use in react.
+        }
+    }
 })(jQuery);
