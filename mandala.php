@@ -175,7 +175,7 @@ final class Mandala {
             // Add mandala_wp to window object
             // window.mandala_wp contains settings for mandala (hash_exceptions, sidebar_state)
             $options = get_option( 'mandala_plugin_options' );
-            error_log('mandala options: ' . json_encode($options));
+            // error_log('mandala options: ' . json_encode($options));
             $hash_exceptions = !empty($options['hash_exceptions']) ? $options['hash_exceptions'] : '';
             $hash_exceptions = explode("\n", $hash_exceptions);
             $hash_exceptions = array_map(function($item) { return trim($item); }, $hash_exceptions);
@@ -185,7 +185,7 @@ final class Mandala {
                 'test' => ($options['default_sidebar'] * 1 === 0) ? 'none' : $options['default_sidebar'],
                 'test2' => $options['default_sidebar']
             );
-            error_log('window.mandala_wp: ' . json_encode($msettings));
+            // error_log('window.mandala_wp: ' . json_encode($msettings));
             $mandala_settings = 'window.mandala_wp = ' . json_encode($msettings) . ';';
             wp_add_inline_script( 'mandala-js', $mandala_settings);
 		}
