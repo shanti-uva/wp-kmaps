@@ -104,6 +104,12 @@ class Mandala_Admin {
             array($this, 'hash_exception_field'),
             'mandala_settings',
             'other_settings_section');
+        add_settings_field(
+            'journal_title',
+            'Journal Title',
+            array($this, 'journal_title_field'),
+            'mandala_settings',
+            'other_settings_section');
 
     }
 /*
@@ -215,6 +221,14 @@ class Mandala_Admin {
                 <p>Enter hash paths (including the hash) that you want the Mandala plugin to ignore (one per line).</p>
             </div>
         EOT;
+    }
+
+    public function journal_title_field() {
+        $options = get_option( 'mandala_plugin_options' );
+        $option_val = !empty($options['journal_title']) ? $options['journal_title'] : '';
+        echo "<input id='mandala_journal_title' name='mandala_plugin_options[journal_title]' " .
+            "type='text' size='50' value='" . esc_attr( $option_val ) . "' /><p><em>If this site is a journal, enter the 
+            journal’s title for citations.</em></p>";
     }
 
 	public function settings_page() {
