@@ -179,11 +179,11 @@ final class Mandala {
             $hash_exceptions = !empty($options['hash_exceptions']) ? $options['hash_exceptions'] : '';
             $hash_exceptions = explode("\n", $hash_exceptions);
             $hash_exceptions = array_map(function($item) { return trim($item); }, $hash_exceptions);
+            $pagePath = parse_url( $_SERVER['REQUEST_URI'] );
             $msettings = array(
                 'hash_exceptions' => $hash_exceptions,
                 'sidebar_state' => $options['default_sidebar'] * 1,
-                'test' => ($options['default_sidebar'] * 1 === 0) ? 'none' : $options['default_sidebar'],
-                'test2' => $options['default_sidebar']
+                'initial_path' => $pagePath['path'],
             );
             // error_log('window.mandala_wp: ' . json_encode($msettings));
             $mandala_settings = 'window.mandala_wp = ' . json_encode($msettings) . ';';
