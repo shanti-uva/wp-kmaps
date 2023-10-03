@@ -104,6 +104,12 @@ class Mandala_Admin {
             array($this, 'hash_exception_field'),
             'mandala_settings',
             'other_settings_section');
+        add_settings_field(
+            'path_filter',
+            'Filter Assets by Path',
+            array($this, 'path_filter_field'),
+            'mandala_settings',
+            'other_settings_section');
 
     }
 /*
@@ -213,6 +219,21 @@ class Mandala_Admin {
                           name='mandala_plugin_options[hash_exceptions]' 
                           rows="20" cols="40">$option_val</textarea>
                 <p>Enter hash paths (including the hash) that you want the Mandala plugin to ignore (one per line).</p>
+            </div>
+        EOT;
+    }
+
+    public function path_filter_field() {
+        $options = get_option( 'mandala_plugin_options' );
+        $check_val = $options['path_filter'] ?? 0;
+        $checked_attr = checked( 1, $check_val, false );
+        echo <<<EOT
+            <div class='field-wrapper'>
+                <input id='mandala_automatic_insert' name='mandala_plugin_options[path_filter]' 
+                    type='checkbox' value='1'
+                    $checked_attr
+                />
+                <p>When checked, searches from pages whose path contains an asset type, e.g. ".../audio-video/...", will filter for that asset type.</p>
             </div>
         EOT;
     }

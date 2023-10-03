@@ -239,7 +239,6 @@ final class Mandala {
 		}
 	}
 
-
 	/**
 	 * Function to add actions to the theme hooks named in the admin settings page
 	 * The actions defined below insert the shortcodes for mandala root, global search, and advanced search
