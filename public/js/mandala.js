@@ -77,7 +77,8 @@
     setTimeout(function() {
         const hash = window.location.hash;
         const he = window?.mandala_wp?.hash_exceptions; // hash exceptions are set in the admin page and added as a js object
-        if (hash === '' || hash === '#/' || he?.includes(hash)) {
+        const setFilterQuery = hash?.includes('#/?'); // if the hash include '/#/?...' this is to set filters in advanced search sidebar but we still want the WP page to show so remove mandala class
+        if (hash === '' || hash === '#/' || he?.includes(hash) || setFilterQuery) {
             $('body').removeClass('mandala');
         }
 

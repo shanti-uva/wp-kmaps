@@ -3,7 +3,7 @@
  * @wordpress-plugin
  * Plugin Name: Mandala React App
  * Description: Mandala React App embedded in a WordPress Page called /mandala
- * Version: 1.0.0
+ * Version: 1.1.1
  * Requires at least: 5.2
  * Requires PHP: 7.2
  * Author: Gerard Ketuma, Than Grove
@@ -19,7 +19,7 @@ final class Mandala {
 	 *
 	 * @var string
 	 */
-	public $version = '1.0.0';
+	public $version = '1.1.1';
 
 	/**
 	 * The single instance of the class.
@@ -175,17 +175,17 @@ final class Mandala {
             // Add mandala_wp to window object
             // window.mandala_wp contains settings for mandala (hash_exceptions, sidebar_state)
             $options = get_option( 'mandala_plugin_options' );
-            error_log('mandala options: ' . json_encode($options));
+            // error_log('mandala options: ' . json_encode($options));
             $hash_exceptions = !empty($options['hash_exceptions']) ? $options['hash_exceptions'] : '';
             $hash_exceptions = explode("\n", $hash_exceptions);
             $hash_exceptions = array_map(function($item) { return trim($item); }, $hash_exceptions);
+            $pagePath = parse_url( $_SERVER['REQUEST_URI'] );
             $msettings = array(
                 'hash_exceptions' => $hash_exceptions,
                 'sidebar_state' => $options['default_sidebar'] * 1,
-                'test' => ($options['default_sidebar'] * 1 === 0) ? 'none' : $options['default_sidebar'],
-                'test2' => $options['default_sidebar']
+                'initial_path' => $pagePath['path'],
             );
-            error_log('window.mandala_wp: ' . json_encode($msettings));
+            // error_log('window.mandala_wp: ' . json_encode($msettings));
             $mandala_settings = 'window.mandala_wp = ' . json_encode($msettings) . ';';
             wp_add_inline_script( 'mandala-js', $mandala_settings);
 		}
