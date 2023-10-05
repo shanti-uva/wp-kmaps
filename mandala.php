@@ -180,10 +180,12 @@ final class Mandala {
             $hash_exceptions = explode("\n", $hash_exceptions);
             $hash_exceptions = array_map(function($item) { return trim($item); }, $hash_exceptions);
             $pagePath = parse_url( $_SERVER['REQUEST_URI'] );
+            $pathFilter = (bool)$options['path_filter'];
             $msettings = array(
                 'hash_exceptions' => $hash_exceptions,
                 'sidebar_state' => $options['default_sidebar'] * 1,
                 'initial_path' => $pagePath['path'],
+                'path_filter' => $pathFilter,
             );
             // error_log('window.mandala_wp: ' . json_encode($msettings));
             $mandala_settings = 'window.mandala_wp = ' . json_encode($msettings) . ';';
