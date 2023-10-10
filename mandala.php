@@ -10,7 +10,9 @@
  * Domain Path: /languages
  */
 
-defined( 'ABSPATH' ) || exit;
+require_once plugin_dir_path( __FILE__ ) . './includes/mandala-translate.php';
+
+    defined( 'ABSPATH' ) || exit;
 
 final class Mandala {
 
@@ -28,6 +30,8 @@ final class Mandala {
 	 * @since 2.1
 	 */
 	protected static $_instance = null;
+
+    protected object $translator;
 
 	/**
 	 * Main Mandala Instance.
@@ -65,6 +69,7 @@ final class Mandala {
 		return true;
 	}
 
+
 	/**
 	 * Mandala Constructor.
 	 */
@@ -74,6 +79,7 @@ final class Mandala {
 		$this->add_shortcodes();
 		$this->add_widgets();
 		$this->add_filters();
+        $this->add_endpoints();
 		$this->enqueue_scripts();
 		$this->enqueue_styles();
 		$this->enqueue_mandala_manifest();
@@ -101,6 +107,7 @@ final class Mandala {
 		define('MANDALA_ADMIN', MANDALA_HOME . 'admin/');
 		require_once(MANDALA_ADMIN . 'class-mandala-admin.php');  // Admin Class
 		require_once(MANDALA_INCLUDES . 'class-mandala-widget.php'); // Widget Class
+        $this->translator = new MandalaTranslate();
 	}
 
 	/**
@@ -162,6 +169,35 @@ final class Mandala {
 	public function add_widget_action() {
 		register_widget( 'mandala_widget' );
 	}
+
+    public function add_endpoints() {
+        add_action( 'rest_api_init', function () {
+            register_rest_route( 'mandala/v1', '/parsetib', array(
+                'methods' => 'GET',
+                'callback' => array($this, 'parse_tibetan'),
+                'args' => array('tib'),
+            ) );
+        } );
+    }
+
+    public function parse_tibetan( WP_REST_Request $request ) {
+        // Test string: བདེ་བར་གཤེགས་པའི་བསྟན་པ་ཐམས་ཅད་ཀྱི་སྙིང་པོ་
+        $tib = $request['tib'];
+        if ($this->translator) {
+            $sdoc = $this->translator->parse($tib);
+            error_log("sdoc is: " . json_encode($sdoc));
+            if ($sdoc) {
+                return $sdoc;
+            } else {
+                return "No dice!";
+            }
+        }
+        /*
+        if (function_exists('get_solr_record')) {
+            $sdoc = get_solr_record('terms-45104');
+            return 'a title 2: ' . json_encode($sdoc);
+        }*/
+    }
 
 	/**
 	 * Define Mandala enqueue_scripts.
