@@ -185,18 +185,12 @@ final class Mandala {
         $tib = $request['tib'];
         if ($this->translator) {
             $sdoc = $this->translator->parse($tib);
-            error_log("sdoc is: " . json_encode($sdoc));
             if ($sdoc) {
                 return $sdoc;
             } else {
-                return "No dice!";
+                return "No dice in mandala plugin!";
             }
         }
-        /*
-        if (function_exists('get_solr_record')) {
-            $sdoc = get_solr_record('terms-45104');
-            return 'a title 2: ' . json_encode($sdoc);
-        }*/
     }
 
 	/**

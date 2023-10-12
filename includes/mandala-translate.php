@@ -7,17 +7,20 @@ final class MandalaTranslate
      *
      * @var string
      */
-    public $version = '1.0.0';
+    public $version = '1.2.0';
 
     /**
      * The single instance of the class.
      *
      * @var MandalaTranslate
-     * @since 2.1
+     * @since 1.0
      */
     protected static $_instance = null;
 
     protected static $wy_conv_url = 'http://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url
+    public static $phrase_delims = '།༏༑༐༈༎༴༔\s'; // The various kinds of shad etc. plus a space
+    public static $syl_delims = '་༌';  // The two types of tseks: breaking and non-breaking
+    public static $tsek = '་';
 
     /**
      * Class Variables
@@ -49,6 +52,7 @@ final class MandalaTranslate
     }
 
     private function getSolrUrl() {
+        // TODO: Make these a setting so they can be changed site-by-site
         $devurl = 'https://mandala-index-dev.internal.lib.virginia.edu/solr/kmassets/select';
         $produrl = 'https://mandala-index.internal.lib.virginia.edu/solr/kmassets/select';
         $devstrs = ['local', 'dev', 'stage', 'staging'];
@@ -62,27 +66,31 @@ final class MandalaTranslate
 
     public function parse($wyl) {
         $tib = $this->convert_wylie($wyl);
-        error_log("Tib in parse is: " . $tib);
+        // error_log("Tib in parse is: " . $tib . " ($wyl)");
         if (!$tib) { return false; }
-        /*
+        $phrpat = '[' . $this::$phrase_delims . ']+';
+        $phrases = mb_split($phrpat, $tib); // mb_split does not take / pattern delimiters /
+        $words = [];
+        foreach($phrases as $pn => $phrase) {
+            $phrase_words = $this->phrase_parse($phrase);
+            array_push($words, ...$phrase_words);
+        }
 
-        $opts = array(
-            'fq' => 'asset_type:terms&fq=related_uid_ss:subjects-9315',
-            // 'fl' => 'uid',
-        );
-        $doc = $this->querySolr($tib, $opts);
-        return $doc;
-        */
         $resp = array(
             'wylie' => $wyl,
-            'tibetan' => $tib
+            'tibetan' => $tib,
+            'phrase_count' => count($phrases),
+            'phrases' => $phrases,
+            'word_count' => count($words),
+            'words' => $words,
         );
         return $resp;
     }
 
     public function convert_wylie($wyl) {
         $wyl = preg_replace('/\s+/', '%20', trim($wyl)); // Normalize spaces and remove leading and trailing ones
-        $first_chr_code = mb_ord(substr($wyl, 0, 1));
+        $first_chr_code = mb_ord(mb_substr($wyl, 0, 1));
+        // error_log("first code is: " . $first_chr_code);
         if ( $first_chr_code > 4095 ) { return false; }  // Outside (above) Tib range
         if ( $first_chr_code > 3839 ) { return $wyl; } // String is already Tibetan
         $req_url = $this::$wy_conv_url . $wyl;
@@ -96,12 +104,61 @@ final class MandalaTranslate
         return false;
     }
 
-    private function querySolr($q, $opts=array()) {
+    /**
+     * Takes a phrase and breaks it up into words
+     * @param $phr
+     * @return array|false|string[]
+     */
+    private function phrase_parse($phr) {
+        // break phrase into syllables
+        $patt = '[' . $this::$syl_delims . ']+';
+        $syls = mb_split($patt, $phr);
+        // Remove empty syllables
+        $syls = array_filter($syls, function ($s) {
+            return strlen($s) > 0;
+        });
+        $maxLoop = pow(count($syls), 2); // to prevent endless looping if something goes wrong
+        $lct = 0;
+        $words = [];
+        while (count($syls) > 0 && $lct < $maxLoop) {
+            $lct++;
+            $unused = [];
+            // Start with full phrase and knock one syllable off end each time not found.
+            for($i = count($syls); $i > 0; $i--) {
+                $test_word = implode($this::$tsek, array_slice($syls, 0, $i)); // build word by putting tseks between syllables
+                $word_id = $this->find_word($test_word);
+                if ($word_id) {
+                    $words[] = $word_id; // $test_word . $this::$tsek;
+                    $unused = array_slice($syls, $i);
+                    break;
+                }
+            }
+            $syls = $unused;
+        }
+        return $words;
+    }
+
+    private function find_word($wd) {
+        $sdoc = $this->querySolr($wd);
+        if (!empty($sdoc['response']['docs'])) {
+            if ($sdoc['response']['numFound'] * 1 > 1) {
+                error_log("Multiple docs found for “{$wd}”: {$sdoc['response']['numFound']}");
+            }
+            error_log('found');
+            return "$wd:{$sdoc['response']['docs'][0]['id']}";
+        }
+        error_log('not found');
+        return false;
+    }
+
+    private function querySolr($qwd, $opts=array()) {
         // sample query: ?q=names:ཁ&fl=*&wt=json&rows=30&fq=asset_type:terms&fq=related_uid_ss:subjects-9315 (means "Expression" not tree node)
         // q string for tibetan def: names:\"$enctib\"
         // fq for defs: &fq=asset_type:terms&fq=related_uid_ss:subjects-9315&rows=10&fl=*&wt=json
-        $opts_list = array();
-        $q = preg_replace('/\s+/', '%20', $q) . '/';
+        $opts_list = array(
+            'fq=asset_type:terms&fq=related_uid_ss:subjects-9315'  // Find only term definitions not other nodes in tree
+        );
+        $qwd = preg_replace('/\s+/', '%20', $qwd);
         foreach($opts as $oky => $oval) {
             $opts_list[] = "$oky=$oval";
         }
@@ -113,15 +170,15 @@ final class MandalaTranslate
         }
         $opts_list[] ='wt=json';
         $opts_str = implode('&', $opts_list);
-        $surl = $this->solrurl . "?q=names:\"$q\"&$opts_str";
-        // return $surl;
-        $sdoc_data = @file_get_contents($surl);
-        $sdoc = array('warning' => "{$q}: Not found (URL: $surl)");
+        // This assumes we are only looking for kmaps
+        $wd = urlencode($qwd);
+        $surl = $this->solrurl . "?q=names:\"$wd\"&$opts_str";
+        $sdoc_data = file_get_contents($surl);
+        $sdoc = array(
+            'status' => 'Nothing returned from solr'
+        );
         if ($sdoc_data) {
             $sdoc = json_decode($sdoc_data, TRUE);
-            if (!empty($sdoc['response']['docs'])) {
-                $sdoc = $sdoc['response']['docs'][0];
-            }
         }
         $sdoc['url'] = $surl;
         return $sdoc;
