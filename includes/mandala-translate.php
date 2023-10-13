@@ -72,11 +72,13 @@ final class MandalaTranslate
         $tib = $this->convert_wylie($wyl);
         // error_log("Tib in parse is: " . $tib . " ($wyl)");
         if (!$tib) { return false; }
+        $tib = preg_replace('/%20/', ' ', $tib);
         $phrpat = '[' . $this::$phrase_delims . ']+';
         $phrases = mb_split($phrpat, $tib); // mb_split does not take / pattern delimiters /
         $words = [];
         foreach($phrases as $pn => $phrase) {
             $phrase_words = $this->phrase_parse($phrase);
+            // error_log("phrase: " . $phrase . " (words: " . implode(', ', $phrase_words) . ')');
             array_push($words, ...$phrase_words);
         }
 
