@@ -16,11 +16,15 @@ final class MandalaTranslate
      * @since 1.0
      */
     protected static $_instance = null;
-
     protected static $wy_conv_url = 'http://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url
     public static $phrase_delims = '།༏༑༐༈༎༴༔\s'; // The various kinds of shad etc. plus a space
     public static $syl_delims = '་༌';  // The two types of tseks: breaking and non-breaking
     public static $tsek = '་';
+    public static $sa_jug = 'ས';
+    public static $ai_jug = 'འི';
+    public static $ra_jug = 'ར';
+    public static $a_jug = 'འ';
+
 
     /**
      * Class Variables
@@ -139,16 +143,38 @@ final class MandalaTranslate
     }
 
     private function find_word($wd) {
-        $sdoc = $this->querySolr($wd);
+        $wds = $this->word_variants($wd);
+        $sdoc = $this->querySolr($wds);
         if (!empty($sdoc['response']['docs'])) {
             if ($sdoc['response']['numFound'] * 1 > 1) {
                 error_log("Multiple docs found for “{$wd}”: {$sdoc['response']['numFound']}");
             }
-            error_log('found');
-            return "$wd:{$sdoc['response']['docs'][0]['id']}";
+            $doc1 = $sdoc['response']['docs'][0];
+            return "{$doc1['name_tibt_sort']}:{$doc1['id']}";
         }
-        error_log('not found');
         return false;
+    }
+
+    /**
+     * Checks endings of words for instrumental, locative, genitive, etc and provides list of possible alternate options for the words
+     * @param $wd
+     * @return array : the returned array of word variants should be in order of importance. The first item will get boost of ^100, second ^99, etc.
+     */
+    private function word_variants($wd) {
+        $wds = array($wd);
+        $wlen = mb_strlen($wd);
+        $last_char = mb_substr($wd, $wlen - 1, 1);
+        $last_two_char = mb_substr($wd, $wlen - 2, 2);
+        if ($last_char === $this::$sa_jug || $last_char === $this::$ra_jug) {
+            $removed = mb_substr($wd, 0, $wlen - 1);
+            $wds[] = $removed;
+            $wds[] = $removed . $this::$a_jug;
+        } else if ($last_two_char === $this::$ai_jug) {
+            $removed =  mb_substr($wd, 0, $wlen - 2);
+            $wds[] = $removed;
+            $wds[] = $removed . $this::$a_jug;
+        }
+        return $wds;
     }
 
     private function querySolr($qwd, $opts=array()) {
@@ -171,8 +197,20 @@ final class MandalaTranslate
         $opts_list[] ='wt=json';
         $opts_str = implode('&', $opts_list);
         // This assumes we are only looking for kmaps
-        $wd = urlencode($qwd);
-        $surl = $this->solrurl . "?q=names:\"$wd\"&$opts_str";
+        if (is_array($qwd)) {
+            $enc_qwds = array_map(function ($item) {
+                return '"' . urlencode($item) . '"';
+            }, $qwd);
+            // $qwd list must be build in order of importance. First item most important.
+            foreach($enc_qwds as $n => &$item) {
+                $boost = 100 - $n;
+                $item = "$item^$boost";
+            }
+            $wd = '(' . implode('%20', $enc_qwds) . ')';
+        } else {
+            $wd = '"' . urlencode($qwd) . '"';
+        }
+        $surl = $this->solrurl . "?q=names:$wd&$opts_str";
         $sdoc_data = file_get_contents($surl);
         $sdoc = array(
             'status' => 'Nothing returned from solr'
