@@ -212,6 +212,7 @@ final class MandalaTranslate
         } else {
             $wd = '"' . urlencode($qwd) . '"';
         }
+        error_log("wds in mandala-translate querySolr: $wd");
         $surl = $this->solrurl . "?q=names:$wd&$opts_str";
         $sdoc_data = file_get_contents($surl);
         $sdoc = array(
