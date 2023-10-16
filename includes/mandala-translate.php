@@ -70,7 +70,9 @@ final class MandalaTranslate
 
     public function parse($wyl) {
         $tib = $this->convert_wylie($wyl);
-        // error_log("Tib in parse is: " . $tib . " ($wyl)");
+        $pts = preg_split('/\s+---\s*/', $tib);
+        $tib = $pts[0];
+        $errors = (count($pts) > 1) ? implode('<br/>', array_slice($pts, 1)) : '';
         if (!$tib) { return false; }
         $tib = preg_replace('/%20/', ' ', $tib);
         $phrpat = '[' . $this::$phrase_delims . ']+';
@@ -85,6 +87,7 @@ final class MandalaTranslate
         $resp = array(
             'wylie' => $wyl,
             'tibetan' => $tib,
+            'errors' => $errors,
             'phrase_count' => count($phrases),
             'phrases' => $phrases,
             'word_count' => count($words),
@@ -137,6 +140,9 @@ final class MandalaTranslate
                     $words[] = $word_id; // $test_word . $this::$tsek;
                     $unused = array_slice($syls, $i);
                     break;
+                } else if ($i == 1) {
+                    $words[] = "$syls[0]:-1";
+                    $unused = array_slice($syls, 1);
                 }
             }
             $syls = $unused;
@@ -212,7 +218,7 @@ final class MandalaTranslate
         } else {
             $wd = '"' . urlencode($qwd) . '"';
         }
-        error_log("wds in mandala-translate querySolr: $wd");
+        // error_log("wds in mandala-translate querySolr: $wd");
         $surl = $this->solrurl . "?q=names:$wd&$opts_str";
         $sdoc_data = file_get_contents($surl);
         $sdoc = array(
