@@ -188,7 +188,14 @@ final class Mandala {
             if ($sdoc) {
                 return $sdoc;
             } else {
-                return "No dice in mandala plugin!";
+                $debug_out = array(
+                    'status' => 'failure to parse Tibetan',
+                    'tib' => $tib,
+                    'translator' => (!empty($this->translator)) ? 'yes': 'no',
+                    'request' => $request,
+                );
+
+                return $debug_out;
             }
         }
     }

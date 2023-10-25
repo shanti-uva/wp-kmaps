@@ -84,6 +84,10 @@ final class MandalaTranslate
             array_push($words, ...$phrase_words);
         }
 
+        if (empty($errors) && strlen($tib) == 0) {
+            $errors = "Wylie conversion unsuccessful";
+            $tib=$wyl;
+        }
         $resp = array(
             'wylie' => $wyl,
             'tibetan' => $tib,
