@@ -16,7 +16,7 @@ final class MandalaTranslate
      * @since 1.0
      */
     protected static $_instance = null;
-    protected static $wy_conv_url = 'http://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url
+    protected static $wy_conv_url = 'https://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url
     public static $phrase_delims = '།༏༑༐༈༎༴༔\s'; // The various kinds of shad etc. plus a space
     public static $syl_delims = '་༌';  // The two types of tseks: breaking and non-breaking
     public static $tsek = '་';
