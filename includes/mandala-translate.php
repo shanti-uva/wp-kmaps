@@ -18,7 +18,7 @@ final class MandalaTranslate
     protected static $_instance = null;
     protected static $wy_conv_url = 'https://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url
     public static $phrase_delims = '།༏༑༐༈༎༴༔\s'; // The various kinds of shad etc. plus a space
-    //public static $tib_delims = ['་དང་', '་ནི་', '་ཀྱང་', '་སྟེ་'];
+    public static $tib_delims = ['་ནི་', '་ཀྱང་', '་སྟེ་', '་ལ་', '་པོས་'];
     public static $syl_delims = '་༌';  // The two types of tseks: breaking and non-breaking
     public static $tsek = '་';
     public static $sa_jug = 'ས';
@@ -162,6 +162,23 @@ final class MandalaTranslate
         $phrases = array_filter(mb_split($phrpat, $tib), function($it) {
             return strlen($it) > 0;
         });
+
+        if (mb_strlen($phrases[0]) > 30) {
+            $p1 = array_shift($phrases);
+            foreach($this::$tib_delims as $tib_delim) {
+                $p1pts = mb_split($tib_delim, $p1);
+                foreach($p1pts as $n => &$pt) {
+                    if ($n < count($p1pts) - 1) {
+                        $pt .= $tib_delim;
+                    }
+                }
+                if (count($p1pts) > 1) {
+                    array_unshift($phrases, ...$p1pts);
+                    break;
+                }
+            }
+        }
+
 
         return $phrases;
     }
