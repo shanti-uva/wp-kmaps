@@ -69,6 +69,7 @@ final class MandalaTranslate
     }
 
     public function parse($data, $isData=false) {
+        // First call is just a string so isData is false, parse the string into phrases, do the first, then after isData is true
         if (!$isData) {
             $wyl = $data;
             $tib = $this->convert_wylie($wyl);
@@ -103,6 +104,7 @@ final class MandalaTranslate
             $words = $this->phrase_parse($phrase);
             $all_words = $words;
         } else {
+        // Subsequent calls with data object are processed here
             $dobj = json_decode($data, true);
             $wyl = $dobj['wylie'];
             $tib = $dobj['tibetan'];
@@ -113,12 +115,13 @@ final class MandalaTranslate
             if (empty($phrase)) {
                 $words = array();
             } else {
-                $words = $this->phrase_parse($phrase);
+                $words = (array)$this->phrase_parse($phrase);
             }
             $words = array_diff($words, $all_words);
             array_push($all_words, ...$words);
         }
 
+        // The returned object is always the same.
         $resp = array(
             'wylie' => $wyl,
             'tibetan' => $tib,
