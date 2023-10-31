@@ -179,7 +179,6 @@ final class MandalaTranslate
             }
         }
 
-
         return $phrases;
     }
 
