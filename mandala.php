@@ -182,11 +182,19 @@ final class Mandala {
 
     public function parse_tibetan( WP_REST_Request $request ) {
         // Test string: བདེ་བར་གཤེགས་པའི་བསྟན་པ་ཐམས་ཅད་ཀྱི་སྙིང་པོ་
-        $tib = $request['tib'];
+        $tib = false;
+        $isData = false;
+        if (isset($request['tib'])) {
+            $tib = $request['tib'];
+        } else if (isset($request['data'])) {
+            $tib = $request['data'];
+            $isData = true;
+        }
+
         if ($this->translator) {
-            $sdoc = $this->translator->parse($tib);
-            if ($sdoc) {
-                return $sdoc;
+            $tdata = $this->translator->parse($tib, $isData);
+            if ($tdata) {
+                return $tdata;
             } else {
                 $debug_out = array(
                     'status' => 'failure to parse Tibetan',

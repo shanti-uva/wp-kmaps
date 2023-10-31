@@ -68,33 +68,65 @@ final class MandalaTranslate
         }
     }
 
-    public function parse($wyl) {
-        $tib = $this->convert_wylie($wyl);
-        $pts = preg_split('/\s+---\s*/', $tib);
-        $tib = $pts[0];
-        $errors = (count($pts) > 1) ? implode('<br/>', array_slice($pts, 1)) : '';
-        if (!$tib) { return false; }
-        $tib = preg_replace('/%20/', ' ', $tib);
-        $phrpat = '[' . $this::$phrase_delims . ']+';
-        $phrases = mb_split($phrpat, $tib); // mb_split does not take / pattern delimiters /
-        $words = [];
-        foreach($phrases as $pn => $phrase) {
-            $phrase_words = $this->phrase_parse($phrase);
-            // error_log("phrase: " . $phrase . " (words: " . implode(', ', $phrase_words) . ')');
-            array_push($words, ...$phrase_words);
+    public function parse($data, $isData=false) {
+        if (!$isData) {
+            $wyl = $data;
+            $tib = $this->convert_wylie($wyl);
+            if (empty($errors) && strlen($tib) == 0) {
+                $errors = "Wylie conversion unsuccessful";
+                $tib = $wyl;
+            }
+            // Look for conversion error messages and put into $errors variables
+            $pts = preg_split('/\s+---\s*/', $tib);
+            $tib = $pts[0];
+            $errors = (count($pts) > 1) ? implode('<br/>', array_slice($pts, 1)) : '';
+            if (!$tib) {
+                return false;
+            }
+
+            // Normalize spaces and Split Tibetan into phrases
+            $tib = preg_replace('/%20/', ' ', $tib);
+            $phrpat = '[' . $this::$phrase_delims . ']+';
+            $phrases = mb_split($phrpat, $tib); // mb_split does not take / pattern delimiters /
+
+            // Parse First phrase into words See $this->phrase_parse()
+            /* original code did all phrases
+            $words = [];
+            foreach($phrases as $pn => $phrase) {
+                $phrase_words = $this->phrase_parse($phrase);
+                // error_log("phrase: " . $phrase . " (words: " . implode(', ', $phrase_words) . ')');
+                array_push($words, ...$phrase_words);
+            }
+            */
+            // New Code Do One Phrase at a time and load progressively (See React App).
+            $phrase = array_shift($phrases);
+            $words = $this->phrase_parse($phrase);
+            $all_words = $words;
+        } else {
+            $dobj = json_decode($data, true);
+            $wyl = $dobj['wylie'];
+            $tib = $dobj['tibetan'];
+            $errors = $dobj['errors'];
+            $phrases = $dobj['phrases'];
+            $all_words = $dobj['words'];
+            $phrase = array_shift($phrases);
+            if (empty($phrase)) {
+                $words = array();
+            } else {
+                $words = $this->phrase_parse($phrase);
+            }
+            $words = array_diff($words, $all_words);
+            array_push($all_words, ...$words);
         }
 
-        if (empty($errors) && strlen($tib) == 0) {
-            $errors = "Wylie conversion unsuccessful";
-            $tib=$wyl;
-        }
         $resp = array(
             'wylie' => $wyl,
             'tibetan' => $tib,
             'errors' => $errors,
-            'phrase_count' => count($phrases),
             'phrases' => $phrases,
+            'current_phrase' => $phrase,
             'word_count' => count($words),
+            'all_words' => $all_words,
             'words' => $words,
         );
         return $resp;
@@ -151,7 +183,7 @@ final class MandalaTranslate
             }
             $syls = $unused;
         }
-        return $words;
+        return array_unique($words);
     }
 
     private function find_word($wd) {
