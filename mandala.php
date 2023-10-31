@@ -10,7 +10,9 @@
  * Domain Path: /languages
  */
 
-defined( 'ABSPATH' ) || exit;
+require_once plugin_dir_path( __FILE__ ) . './includes/mandala-translate.php';
+
+    defined( 'ABSPATH' ) || exit;
 
 final class Mandala {
 
@@ -28,6 +30,8 @@ final class Mandala {
 	 * @since 2.1
 	 */
 	protected static $_instance = null;
+
+    protected object $translator;
 
 	/**
 	 * Main Mandala Instance.
@@ -65,6 +69,7 @@ final class Mandala {
 		return true;
 	}
 
+
 	/**
 	 * Mandala Constructor.
 	 */
@@ -74,6 +79,7 @@ final class Mandala {
 		$this->add_shortcodes();
 		$this->add_widgets();
 		$this->add_filters();
+        $this->add_endpoints();
 		$this->enqueue_scripts();
 		$this->enqueue_styles();
 		$this->enqueue_mandala_manifest();
@@ -101,6 +107,7 @@ final class Mandala {
 		define('MANDALA_ADMIN', MANDALA_HOME . 'admin/');
 		require_once(MANDALA_ADMIN . 'class-mandala-admin.php');  // Admin Class
 		require_once(MANDALA_INCLUDES . 'class-mandala-widget.php'); // Widget Class
+        $this->translator = new MandalaTranslate();
 	}
 
 	/**
@@ -163,6 +170,44 @@ final class Mandala {
 		register_widget( 'mandala_widget' );
 	}
 
+    public function add_endpoints() {
+        add_action( 'rest_api_init', function () {
+            register_rest_route( 'mandala/v1', '/parsetib', array(
+                'methods' => 'GET',
+                'callback' => array($this, 'parse_tibetan'),
+                'args' => array('tib'),
+            ) );
+        } );
+    }
+
+    public function parse_tibetan( WP_REST_Request $request ) {
+        // Test string: བདེ་བར་གཤེགས་པའི་བསྟན་པ་ཐམས་ཅད་ཀྱི་སྙིང་པོ་
+        $tib = false;
+        $isData = false;
+        if (isset($request['tib'])) {
+            $tib = $request['tib'];
+        } else if (isset($request['data'])) {
+            $tib = $request['data'];
+            $isData = true;
+        }
+
+        if ($this->translator) {
+            $tdata = $this->translator->parse($tib, $isData);
+            if ($tdata) {
+                return $tdata;
+            } else {
+                $debug_out = array(
+                    'status' => 'failure to parse Tibetan',
+                    'tib' => $tib,
+                    'translator' => (!empty($this->translator)) ? 'yes': 'no',
+                    'request' => $request,
+                );
+
+                return $debug_out;
+            }
+        }
+    }
+
 	/**
 	 * Define Mandala enqueue_scripts.
 	 */
@@ -180,10 +225,12 @@ final class Mandala {
             $hash_exceptions = explode("\n", $hash_exceptions);
             $hash_exceptions = array_map(function($item) { return trim($item); }, $hash_exceptions);
             $pagePath = parse_url( $_SERVER['REQUEST_URI'] );
+            $pathFilter = (bool)$options['path_filter'];
             $msettings = array(
                 'hash_exceptions' => $hash_exceptions,
                 'sidebar_state' => $options['default_sidebar'] * 1,
                 'initial_path' => $pagePath['path'],
+                'path_filter' => $pathFilter,
             );
             // error_log('window.mandala_wp: ' . json_encode($msettings));
             $mandala_settings = 'window.mandala_wp = ' . json_encode($msettings) . ';';
@@ -238,7 +285,6 @@ final class Mandala {
 			}
 		}
 	}
-
 
 	/**
 	 * Function to add actions to the theme hooks named in the admin settings page
