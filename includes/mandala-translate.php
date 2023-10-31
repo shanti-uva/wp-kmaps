@@ -18,7 +18,7 @@ final class MandalaTranslate
     protected static $_instance = null;
     protected static $wy_conv_url = 'https://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url
     public static $phrase_delims = '།༏༑༐༈༎༴༔\s'; // The various kinds of shad etc. plus a space
-    public static $tib_delims = ['་ནི་', '་ཀྱང་', '་སྟེ་', '་ལ་', '་པོས་'];
+    public static $tib_delims = ['་ནི་', '་ཀྱང་', '་སྟེ་', '་རྣམས་', '་པོས་', '་ཅིང་', '་ཞིང་', '་ཤིང་', '་ཞེས་', '་ལ་', '་ན་', '་ཡི་', '་གྱིས་', '་ཀྱིས་', '་གིས་']; // for extra long phrases
     public static $syl_delims = '་༌';  // The two types of tseks: breaking and non-breaking
     public static $tsek = '་';
     public static $sa_jug = 'ས';
@@ -153,7 +153,7 @@ final class MandalaTranslate
         return false;
     }
 
-    public function break_phrases($tib) {
+    public function split($tib) {
 
         // Normalize spaces and Split Tibetan into phrases based on shads or spaces
         $tib = preg_replace('/%20/', ' ', $tib);
@@ -162,24 +162,29 @@ final class MandalaTranslate
         $phrases = array_filter(mb_split($phrpat, $tib), function($it) {
             return strlen($it) > 0;
         });
+        // return $phrases;
 
-        if (mb_strlen($phrases[0]) > 30) {
-            $p1 = array_shift($phrases);
-            foreach($this::$tib_delims as $tib_delim) {
-                $p1pts = mb_split($tib_delim, $p1);
-                foreach($p1pts as $n => &$pt) {
-                    if ($n < count($p1pts) - 1) {
-                        $pt .= $tib_delim;
+        $newphrases = [];
+
+        foreach($phrases as $n => $phr) {
+            if (mb_strlen($phr) > 30) {
+                foreach($this::$tib_delims as $tib_delim) {
+                    $p1pts = mb_split($tib_delim, $phr);
+                    foreach($p1pts as $n => &$pt) {
+                        if ($n < count($p1pts) - 1) {
+                            $pt .= $tib_delim;
+                        }
+                    }
+                    if (count($p1pts) > 1) {
+                        array_push($newphrases, ...$p1pts);
+                        break;
                     }
                 }
-                if (count($p1pts) > 1) {
-                    array_unshift($phrases, ...$p1pts);
-                    break;
-                }
+            } else {
+                $newphrases[] = $phr;
             }
         }
-
-        return $phrases;
+        return $newphrases;
     }
 
     /**

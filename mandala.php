@@ -172,12 +172,33 @@ final class Mandala {
 
     public function add_endpoints() {
         add_action( 'rest_api_init', function () {
+
+            register_rest_route( 'mandala/v1', '/splittib', array(
+                'methods' => 'GET',
+                'callback' => array($this, 'split_tibetan'),
+                'args' => array('tib'),
+            ) );
+
             register_rest_route( 'mandala/v1', '/parsetib', array(
                 'methods' => 'GET',
                 'callback' => array($this, 'parse_tibetan'),
                 'args' => array('tib'),
             ) );
         } );
+    }
+
+    public function split_tibetan( WP_REST_Request $request ) {
+        // Test string: བདེ་བར་གཤེགས་པའི་བསྟན་པ་ཐམས་ཅད་ཀྱི་སྙིང་པོ་
+        $tib = isset($request['tib']) ? $request['tib'] : false;
+
+        if ($tib && $this->translator) {
+            $tdata = $this->translator->split($tib);
+        }
+        $packet = array(
+            'tib' => $tib,
+            'phrases' => $tdata
+        );
+        return $packet;
     }
 
     public function parse_tibetan( WP_REST_Request $request ) {
