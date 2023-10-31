@@ -18,6 +18,7 @@ final class MandalaTranslate
     protected static $_instance = null;
     protected static $wy_conv_url = 'https://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url
     public static $phrase_delims = '།༏༑༐༈༎༴༔\s'; // The various kinds of shad etc. plus a space
+    //public static $tib_delims = ['་དང་', '་ནི་', '་ཀྱང་', '་སྟེ་'];
     public static $syl_delims = '་༌';  // The two types of tseks: breaking and non-breaking
     public static $tsek = '་';
     public static $sa_jug = 'ས';
@@ -71,12 +72,10 @@ final class MandalaTranslate
     public function parse($data, $isData=false) {
         // First call is just a string so isData is false, parse the string into phrases, do the first, then after isData is true
         if (!$isData) {
+
             $wyl = $data;
             $tib = $this->convert_wylie($wyl);
-            if (empty($errors) && strlen($tib) == 0) {
-                $errors = "Wylie conversion unsuccessful";
-                $tib = $wyl;
-            }
+
             // Look for conversion error messages and put into $errors variables
             $pts = preg_split('/\s+---\s*/', $tib);
             $tib = $pts[0];
@@ -85,13 +84,12 @@ final class MandalaTranslate
                 return false;
             }
 
-            // Normalize spaces and Split Tibetan into phrases
-            $tib = preg_replace('/%20/', ' ', $tib);
-            $phrpat = '[' . $this::$phrase_delims . ']+';
-            // mb_split does not take / pattern delimiters /
-            $phrases = array_filter(mb_split($phrpat, $tib), function($it) {
-                return strlen($it) > 0;
-            });
+            if (empty($errors) && strlen($tib) == 0) {
+                $errors = "Wylie conversion unsuccessful";
+                $tib = $wyl;
+            }
+
+            $phrases = $this->break_phrases($tib);
 
             // Parse First phrase into words See $this->phrase_parse()
             /* original code did all phrases
@@ -153,6 +151,19 @@ final class MandalaTranslate
             }
         }
         return false;
+    }
+
+    public function break_phrases($tib) {
+
+        // Normalize spaces and Split Tibetan into phrases based on shads or spaces
+        $tib = preg_replace('/%20/', ' ', $tib);
+        $phrpat = '[' . $this::$phrase_delims . ']+';
+        // mb_split does not take / pattern delimiters /
+        $phrases = array_filter(mb_split($phrpat, $tib), function($it) {
+            return strlen($it) > 0;
+        });
+
+        return $phrases;
     }
 
     /**
