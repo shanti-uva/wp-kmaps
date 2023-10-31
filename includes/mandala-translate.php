@@ -88,7 +88,10 @@ final class MandalaTranslate
             // Normalize spaces and Split Tibetan into phrases
             $tib = preg_replace('/%20/', ' ', $tib);
             $phrpat = '[' . $this::$phrase_delims . ']+';
-            $phrases = mb_split($phrpat, $tib); // mb_split does not take / pattern delimiters /
+            // mb_split does not take / pattern delimiters /
+            $phrases = array_filter(mb_split($phrpat, $tib), function($it) {
+                return strlen($it) > 0;
+            });
 
             // Parse First phrase into words See $this->phrase_parse()
             /* original code did all phrases
