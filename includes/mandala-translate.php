@@ -69,68 +69,23 @@ final class MandalaTranslate
         }
     }
 
-    public function parse($data, $isData=false) {
-        // First call is just a string so isData is false, parse the string into phrases, do the first, then after isData is true
-        if (!$isData) {
+    public function parse($data) {
+        $wyl = $data;
+        $tib = $this->convert_wylie($wyl);
 
-            $wyl = $data;
-            $tib = $this->convert_wylie($wyl);
-
-            // Look for conversion error messages and put into $errors variables
-            $pts = preg_split('/\s+---\s*/', $tib);
-            $tib = $pts[0];
-            $errors = (count($pts) > 1) ? implode('<br/>', array_slice($pts, 1)) : '';
-            if (!$tib) {
-                return false;
-            }
-
-            if (empty($errors) && strlen($tib) == 0) {
-                $errors = "Wylie conversion unsuccessful";
-                $tib = $wyl;
-            }
-
-            $phrases = $this->break_phrases($tib);
-
-            // Parse First phrase into words See $this->phrase_parse()
-            /* original code did all phrases
-            $words = [];
-            foreach($phrases as $pn => $phrase) {
-                $phrase_words = $this->phrase_parse($phrase);
-                // error_log("phrase: " . $phrase . " (words: " . implode(', ', $phrase_words) . ')');
-                array_push($words, ...$phrase_words);
-            }
-            */
-            // New Code Do One Phrase at a time and load progressively (See React App).
-            $phrase = array_shift($phrases);
-            $words = $this->phrase_parse($phrase);
-            $all_words = $words;
-        } else {
-        // Subsequent calls with data object are processed here
-            $dobj = json_decode($data, true);
-            $wyl = $dobj['wylie'];
-            $tib = $dobj['tibetan'];
-            $errors = $dobj['errors'];
-            $phrases = $dobj['phrases'];
-            $all_words = $dobj['words'];
-            $phrase = array_shift($phrases);
-            if (empty($phrase)) {
-                $words = array();
-            } else {
-                $words = (array)$this->phrase_parse($phrase);
-            }
-            $words = array_diff($words, $all_words);
-            array_push($all_words, ...$words);
+        // Look for conversion error messages and put into $errors variables
+        $pts = preg_split('/\s+---\s*/', $tib);
+        $tib = $pts[0];
+        $errors = (count($pts) > 1) ? implode('<br/>', array_slice($pts, 1)) : '';
+        if (!$tib) {
+            return false;
         }
+        $tib = mb_ereg_replace('^།', '', $tib); // Strip of leading shad
+        $words = $this->phrase_parse($tib);
 
         // The returned object is always the same.
         $resp = array(
-            'wylie' => $wyl,
             'tibetan' => $tib,
-            'errors' => $errors,
-            'phrases' => $phrases,
-            'current_phrase' => $phrase,
-            'word_count' => count($words),
-            'all_words' => $all_words,
             'words' => $words,
         );
         return $resp;
@@ -153,7 +108,18 @@ final class MandalaTranslate
         return false;
     }
 
-    public function split($tib) {
+    public function split($strin) {
+        $wyl = $strin;
+        $tib = $this->convert_wylie($wyl);
+
+        // Look for conversion error messages and put into $errors variables
+        $pts = preg_split('/\s+---\s*/', $tib);
+        $tib = $pts[0];
+
+        // $errors = (count($pts) > 1) ? implode('<br/>', array_slice($pts, 1)) : '';
+        if (!$tib || mb_strlen($tib) === 0) {
+            return array();
+        }
 
         // Normalize spaces and Split Tibetan into phrases based on shads or spaces
         $tib = preg_replace('/%20/', ' ', $tib);
