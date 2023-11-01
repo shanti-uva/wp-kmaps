@@ -161,7 +161,6 @@ final class MandalaTranslate
      * @return array|false|string[]
      */
     private function phrase_parse($phr, $done) {
-        error_log("tib: $phr and done: $done");
         // break phrase into syllables
         $patt = '[' . $this::$syl_delims . ']+';
         $syls = mb_split($patt, $phr);
@@ -203,7 +202,6 @@ final class MandalaTranslate
             // Start with full phrase and knock one syllable off end each time not found.
             for($i = count($syls); $i > 0; $i--) {
                 $test_word = implode($this::$tsek, array_slice($syls, 0, $i)); // build word by putting tseks between syllables
-                error_log("test word: $test_word");
                 if (str_contains($done, "|$test_word:")) {
                     // Word has already been translated
                     $unused = array_slice($syls, $i);
