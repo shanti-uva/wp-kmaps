@@ -168,31 +168,15 @@ final class MandalaTranslate
         $syls = array_filter($syls, function ($s) {
             return strlen($s) > 0;
         });
+        // Remove any extraneous shads at end (couldn't get to work with patter above)
+        $delimfilter = function ($s)  {
+            return str_replace("།", '', $s); // remove any extraneous delimiters
+        };
+        $syls = array_map($delimfilter, $syls);
         $maxLoop = pow(count($syls), 2); // to prevent endless looping if something goes wrong
         $lct = 0;
-        /* original code: takes too long on long sentences (limiting to a certain number of words)
-        $words = [];
-        while (count($syls) > 0 && $lct < $maxLoop) {
-            $lct++;
-            $unused = [];
-            // Start with full phrase and knock one syllable off end each time not found.
-            for($i = count($syls); $i > 0; $i--) {
-                $test_word = implode($this::$tsek, array_slice($syls, 0, $i)); // build word by putting tseks between syllables
-                $word_id = $this->find_word($test_word);
-                if ($word_id) {
-                    $words[] = $word_id; // $test_word . $this::$tsek;
-                    $unused = array_slice($syls, $i);
-                    break;
-                } else if ($i == 1) {
-                    $words[] = "$syls[0]:-1";
-                    $unused = array_slice($syls, 1);
-                }
-            }
-            $syls = $unused;
-        }
-        return array_unique($words);*/
 
-        // New code (does n at a time) and returns remaining phrase for resending.
+        // Do n words at a time and returns remaining phrase for resending.
         $words = [];
         $word_limit = 1;
         $syl_bank = array_splice($syls, $word_limit * 6);
