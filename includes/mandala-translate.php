@@ -69,7 +69,7 @@ final class MandalaTranslate
         }
     }
 
-    public function parse($data) {
+    public function parse($data, $done) {
         $wyl = $data;
         $tib = $this->convert_wylie($wyl);
 
@@ -81,12 +81,13 @@ final class MandalaTranslate
             return false;
         }
         $tib = mb_ereg_replace('^།', '', $tib); // Strip of leading shad
-        [$words, $remaining] = $this->phrase_parse($tib);
+        [$words, $remaining, $done] = $this->phrase_parse($tib, $done);
 
         // The returned object is always the same. "undone" is the portion of the initial phrase untranslated. It is an array of syllables so is rejoined with at tsek
         $resp = array(
             'words' => $words,
-            'undone' => implode($this::$tsek, $remaining)
+            'undone' => implode($this::$tsek, $remaining),
+            'done' => $done
         );
         return $resp;
     }
@@ -156,9 +157,11 @@ final class MandalaTranslate
     /**
      * Takes a phrase and breaks it up into words
      * @param $phr
+     * @param $done : the JSON string of the array of word:ids that have already be processed
      * @return array|false|string[]
      */
-    private function phrase_parse($phr) {
+    private function phrase_parse($phr, $done) {
+        error_log("tib: $phr and done: $done");
         // break phrase into syllables
         $patt = '[' . $this::$syl_delims . ']+';
         $syls = mb_split($patt, $phr);
@@ -200,22 +203,31 @@ final class MandalaTranslate
             // Start with full phrase and knock one syllable off end each time not found.
             for($i = count($syls); $i > 0; $i--) {
                 $test_word = implode($this::$tsek, array_slice($syls, 0, $i)); // build word by putting tseks between syllables
-                $word_id = $this->find_word($test_word);
-                if ($word_id) {
-                    if (!in_array($word_id, $words)) {
-                        $words[] = $word_id;
-                    }
+                error_log("test word: $test_word");
+                if (str_contains($done, "|$test_word:")) {
+                    // Word has already been translated
                     $unused = array_slice($syls, $i);
                     break;
-                } else if ($i == 1) {
-                    $words[] = "$syls[0]:-1";
-                    $unused = array_slice($syls, 1);
+                } else {
+                    $word_id = $this->find_word($test_word);
+                    if ($word_id) {
+                        if (!in_array($word_id, $words)) {
+                            $words[] = $word_id;
+                        }
+                        $unused = array_slice($syls, $i);
+                        break;
+                    } else if ($i == 1) {
+                        $words[] = "$syls[0]:-1";
+                        $unused = array_slice($syls, 1);
+                    }
                 }
             }
             $syls = $unused;
         }
         array_push($syls, ...$syl_bank);
-        return [$words, $syls]; // return n number of words plus unprocessed syllable list
+        $done .= '|' . implode('|', $words);
+        $done = str_replace('||',  '|', $done);
+        return [$words, $syls, $done]; // return n number of words plus unprocessed syllable list
     }
 
     private function find_word($wd) {

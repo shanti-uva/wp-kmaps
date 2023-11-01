@@ -214,8 +214,12 @@ final class Mandala {
         if (isset($request['tib'])) {
             $tib = $request['tib'];
         }
+        $done = '';
+        if (isset($request['done'])) {
+            $done = $request['done'];
+        }
 
-        $tdata = $this->translator->parse($tib);
+        $tdata = $this->translator->parse($tib, $done);
         if ($tdata) {
             return $tdata;
         } else {
