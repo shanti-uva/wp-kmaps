@@ -81,12 +81,12 @@ final class MandalaTranslate
             return false;
         }
         $tib = mb_ereg_replace('^།', '', $tib); // Strip of leading shad
-        $words = $this->phrase_parse($tib);
+        [$words, $remaining] = $this->phrase_parse($tib);
 
-        // The returned object is always the same.
+        // The returned object is always the same. "undone" is the portion of the initial phrase untranslated. It is an array of syllables so is rejoined with at tsek
         $resp = array(
-            'tibetan' => $tib,
             'words' => $words,
+            'undone' => implode($this::$tsek, $remaining)
         );
         return $resp;
     }
@@ -168,6 +168,7 @@ final class MandalaTranslate
         });
         $maxLoop = pow(count($syls), 2); // to prevent endless looping if something goes wrong
         $lct = 0;
+        /* original code: takes too long on long sentences (limiting to a certain number of words)
         $words = [];
         while (count($syls) > 0 && $lct < $maxLoop) {
             $lct++;
@@ -187,7 +188,34 @@ final class MandalaTranslate
             }
             $syls = $unused;
         }
-        return array_unique($words);
+        return array_unique($words);*/
+
+        // New code (does n at a time) and returns remaining phrase for resending.
+        $words = [];
+        $word_limit = 1;
+        $syl_bank = array_splice($syls, $word_limit * 6);
+        while (count($words) < $word_limit && $lct < $maxLoop) {
+            $lct++;
+            $unused = [];
+            // Start with full phrase and knock one syllable off end each time not found.
+            for($i = count($syls); $i > 0; $i--) {
+                $test_word = implode($this::$tsek, array_slice($syls, 0, $i)); // build word by putting tseks between syllables
+                $word_id = $this->find_word($test_word);
+                if ($word_id) {
+                    if (!in_array($word_id, $words)) {
+                        $words[] = $word_id;
+                    }
+                    $unused = array_slice($syls, $i);
+                    break;
+                } else if ($i == 1) {
+                    $words[] = "$syls[0]:-1";
+                    $unused = array_slice($syls, 1);
+                }
+            }
+            $syls = $unused;
+        }
+        array_push($syls, ...$syl_bank);
+        return [$words, $syls]; // return n number of words plus unprocessed syllable list
     }
 
     private function find_word($wd) {

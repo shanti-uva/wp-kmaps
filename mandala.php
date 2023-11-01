@@ -201,31 +201,32 @@ final class Mandala {
         return $packet;
     }
 
+    /**
+     * An api function for parsing and translating tibetan
+     * Takes a phrase of Tibetan (converts wylie to unicode if necessary) and breaks into syllables
+     * @param WP_REST_Request $request
+     * @return array|void
+     */
     public function parse_tibetan( WP_REST_Request $request ) {
         // Test string: བདེ་བར་གཤེགས་པའི་བསྟན་པ་ཐམས་ཅད་ཀྱི་སྙིང་པོ་
+        if (!$this->translator) { return; }
         $tib = false;
-        $isData = false;
         if (isset($request['tib'])) {
             $tib = $request['tib'];
-        } else if (isset($request['data'])) {
-            $tib = $request['data'];
-            $isData = true;
         }
 
-        if ($this->translator) {
-            $tdata = $this->translator->parse($tib, $isData);
-            if ($tdata) {
-                return $tdata;
-            } else {
-                $debug_out = array(
-                    'status' => 'failure to parse Tibetan',
-                    'tib' => $tib,
-                    'translator' => (!empty($this->translator)) ? 'yes': 'no',
-                    'request' => $request,
-                );
+        $tdata = $this->translator->parse($tib);
+        if ($tdata) {
+            return $tdata;
+        } else {
+            $debug_out = array(
+                'status' => 'failure to parse Tibetan',
+                'tib' => $tib,
+                'translator' => (!empty($this->translator)) ? 'yes': 'no',
+                'request' => $request,
+            );
 
-                return $debug_out;
-            }
+            return $debug_out;
         }
     }
 
