@@ -26,7 +26,7 @@
                 window.scrollTo(0,0);
             }
             setTimeout(() => {
-                if ($('#l-column__search').hasClass('closed')) {
+                if ($('#l-column__search, #l-column__search--treeNav').hasClass('closed')) {
                     $('#secondary').hide();
                 } else if ($('#secondary').is(":hidden")) {
                     $('#secondary').show();
