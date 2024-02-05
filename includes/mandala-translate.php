@@ -95,7 +95,7 @@ final class MandalaTranslate
             $first_phrase = $phrase_split[0];
             $undone = $phrase_split[1];
         }
-        error_log("$first_phrase :: $undone");
+        // error_log("$first_phrase :: $undone");
         [$words, $remaining, $done] = $this->phrase_parse($first_phrase, $done);
         $undone = implode($this::$tsek, $remaining) . ' ' . $undone;
 
