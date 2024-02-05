@@ -16,7 +16,7 @@ final class MandalaTranslate
      * @since 1.0
      */
     protected static $_instance = null;
-    protected static $wy_conv_url = 'https://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url
+    protected static $wy_conv_url = 'https://texts.thdl.org/wylie/?wy='; // TODO: Fix/finalize this url. Not necessary. Conversion happens in react
     public static $phrase_delims = '།༏༑༐༈༎༴༔\s'; // The various kinds of shad etc. plus a space
     public static $tib_delims = ['་ནི་', '་ཀྱང་', '་སྟེ་', '་རྣམས་', '་པོས་', '་ཅིང་', '་ཞིང་', '་ཤིང་', '་ཞེས་', '་ལ་', '་ན་', '་ཡི་', '་གྱིས་', '་ཀྱིས་', '་གིས་']; // for extra long phrases
     public static $syl_delims = '་༌';  // The two types of tseks: breaking and non-breaking
@@ -25,6 +25,7 @@ final class MandalaTranslate
     public static $ai_jug = 'འི';
     public static $ra_jug = 'ར';
     public static $a_jug = 'འ';
+    public static $ao = 'འོ';
 
 
     /**
@@ -70,8 +71,9 @@ final class MandalaTranslate
     }
 
     public function parse($data, $done) {
-        $wyl = $data;
-        $tib = $this->convert_wylie($wyl);
+        $wyl = str_replace('%20', ' ', $data);
+
+        $tib = $this->convert_wylie($wyl); // Returns same value if already Unicode Tibetan
 
         // Look for conversion error messages and put into $errors variables
         $pts = preg_split('/\s+---\s*/', $tib);
@@ -80,13 +82,27 @@ final class MandalaTranslate
         if (!$tib) {
             return false;
         }
+
         $tib = mb_ereg_replace('^།', '', $tib); // Strip of leading shad
-        [$words, $remaining, $done] = $this->phrase_parse($tib, $done);
+
+        $first_phrase = $tib; // if split doesn't work defaults to all of $tib;
+        $phrdelims = $this::$phrase_delims;
+        $pattern = "[{$phrdelims}]";
+        // error_log("Pattern: $pattern");
+        $phrase_split = mb_split($pattern, $tib, 2);
+        $undone = '';
+        if (!empty($phrase_split) && is_array($phrase_split) && count($phrase_split) == 2) {
+            $first_phrase = $phrase_split[0];
+            $undone = $phrase_split[1];
+        }
+        error_log("$first_phrase :: $undone");
+        [$words, $remaining, $done] = $this->phrase_parse($first_phrase, $done);
+        $undone = implode($this::$tsek, $remaining) . ' ' . $undone;
 
         // The returned object is always the same. "undone" is the portion of the initial phrase untranslated. It is an array of syllables so is rejoined with at tsek
         $resp = array(
             'words' => $words,
-            'undone' => implode($this::$tsek, $remaining),
+            'undone' => $undone,
             'done' => $done
         );
         return $resp;
@@ -94,7 +110,9 @@ final class MandalaTranslate
 
     public function convert_wylie($wyl) {
         $wyl = preg_replace('/\s+/', '%20', trim($wyl)); // Normalize spaces and remove leading and trailing ones
-        $first_chr_code = mb_ord(mb_substr($wyl, 0, 1));
+        $first_chr = mb_substr($wyl, 0, 1);
+        if(empty($first_chr)) { return ''; }
+        $first_chr_code = mb_ord($first_chr);
         // error_log("first code is: " . $first_chr_code);
         if ( $first_chr_code > 4095 ) { return false; }  // Outside (above) Tib range
         if ( $first_chr_code > 3839 ) { return $wyl; } // String is already Tibetan
@@ -163,15 +181,17 @@ final class MandalaTranslate
     private function phrase_parse($phr, $done) {
         // break phrase into syllables
         $patt = '[' . $this::$syl_delims . ']+';
-        $syls = mb_split($patt, $phr);
+        $syls = mb_split($patt, urldecode($phr));
         // Remove empty syllables
         $syls = array_filter($syls, function ($s) {
             return strlen($s) > 0;
         });
-        // Remove any extraneous shads at end (couldn't get to work with patter above)
+
+        // Remove any extraneous shads at end of syllables (couldn't get to work with pattern above)
         $delimfilter = function ($s)  {
             return str_replace("།", '', $s); // remove any extraneous delimiters
         };
+
         $syls = array_map($delimfilter, $syls);
         $maxLoop = pow(count($syls), 2); // to prevent endless looping if something goes wrong
         $lct = 0;
@@ -185,7 +205,7 @@ final class MandalaTranslate
             $unused = [];
             // Start with full phrase and knock one syllable off end each time not found.
             for($i = count($syls); $i > 0; $i--) {
-                $test_word = implode($this::$tsek, array_slice($syls, 0, $i)); // build word by putting tseks between syllables
+                $test_word = trim(implode($this::$tsek, array_slice($syls, 0, $i))); // build word by putting tseks between syllables
                 if (str_contains($done, "|$test_word:")) {
                     // Word has already been translated
                     $unused = array_slice($syls, $i);
@@ -216,9 +236,13 @@ final class MandalaTranslate
         $wds = $this->word_variants($wd);
         $sdoc = $this->querySolr($wds);
         if (!empty($sdoc['response']['docs'])) {
+            /*  For debugging, queries for full syllable with secondary hits on syllable without instrumental or la-don */
+            /*
             if ($sdoc['response']['numFound'] * 1 > 1) {
                 error_log("Multiple docs found for “{$wd}”: {$sdoc['response']['numFound']}");
+                error_log(json_encode($sdoc['response']));
             }
+            */
             $doc1 = $sdoc['response']['docs'][0];
             return "{$doc1['name_tibt_sort']}:{$doc1['id']}";
         }
@@ -235,15 +259,19 @@ final class MandalaTranslate
         $wlen = mb_strlen($wd);
         $last_char = mb_substr($wd, $wlen - 1, 1);
         $last_two_char = mb_substr($wd, $wlen - 2, 2);
+        $removed =  mb_substr($wd, 0, $wlen - 2);
+        // error_log("last two: $last_two_char, removed: $removed");
         if ($last_char === $this::$sa_jug || $last_char === $this::$ra_jug) {
-            $removed = mb_substr($wd, 0, $wlen - 1);
             $wds[] = $removed;
             $wds[] = $removed . $this::$a_jug;
         } else if ($last_two_char === $this::$ai_jug) {
-            $removed =  mb_substr($wd, 0, $wlen - 2);
+            $wds[] = $removed;
+            $wds[] = $removed . $this::$a_jug;
+        } else if ($last_two_char === $this::$ao) {
             $wds[] = $removed;
             $wds[] = $removed . $this::$a_jug;
         }
+
         return $wds;
     }
 
@@ -282,6 +310,7 @@ final class MandalaTranslate
         }
         // error_log("wds in mandala-translate querySolr: $wd");
         $surl = $this->solrurl . "?q=names:$wd&$opts_str";
+        //error_log("solr query: $surl");
         $sdoc_data = file_get_contents($surl);
         $sdoc = array(
             'status' => 'Nothing returned from solr'
