@@ -237,7 +237,7 @@ final class MandalaTranslate
 
     private function find_word($wd) {
         $wds = $this->word_variants($wd);
-        //error_log("Word variants in find word: " . implode('$', $wds));
+        // error_log("Word variants in find word: " . implode(', ', $wds));
         $sdoc = $this->querySolr($wds);
         if (!empty($sdoc['response']['docs'])) {
             /*  For debugging, queries for full syllable with secondary hits on syllable without instrumental or la-don */
@@ -267,14 +267,14 @@ final class MandalaTranslate
         $with_a_jug =  $extra_truncated . $this::$a_jug;
         //error_log("word variants: $wd, $last_char, $last_two_char, $removed");
         if ($last_char === $this::$sa_jug || $last_char === $this::$ra_jug) {
+            $wds[] = $with_a_jug;
             $wds[] = $truncated;
-            $wds[] = $with_a_jug;
         } else if ($last_two_char === $this::$ai_jug) {
-            $wds[] = $extra_truncated;
             $wds[] = $with_a_jug;
+            $wds[] = $extra_truncated;
         } else if ($last_two_char === $this::$ao) {
-            $wds[] = $extra_truncated;
             $wds[] = $with_a_jug;
+            $wds[] = $extra_truncated;
         }
         return $wds;
     }
@@ -296,7 +296,8 @@ final class MandalaTranslate
         if(!in_array('fl', array_keys($opts))) {
             $opts_list[] = 'fl=*';
         }
-        $opts_list[] ='wt=json';
+        $opts_list[] = 'sort=score%20ASC';
+        $opts_list[] = 'wt=json';
         $opts_str = implode('&', $opts_list);
         // This assumes we are only looking for kmaps
         if (is_array($qwd)) {
@@ -305,7 +306,7 @@ final class MandalaTranslate
             }, $qwd);
             // $qwd list must be build in order of importance. First item most important.
             foreach($enc_qwds as $n => &$item) {
-                $boost = 100 - $n;
+                $boost = 100 - ($n * 3);
                 $item = "$item^$boost";
             }
             $wd = '(' . implode('%20', $enc_qwds) . ')';
@@ -314,7 +315,7 @@ final class MandalaTranslate
         }
         // error_log("wds in mandala-translate querySolr: $wd");
         $surl = $this->solrurl . "?q=names:$wd&$opts_str";
-        //error_log("solr query: $surl");
+        // error_log("solr query: $surl");
         $sdoc_data = file_get_contents($surl);
         $sdoc = array(
             'status' => 'Nothing returned from solr'
