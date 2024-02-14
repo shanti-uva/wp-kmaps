@@ -263,9 +263,11 @@ final class MandalaTranslate
         $wlen = mb_strlen($wd);
         $last_char = mb_substr($wd, $wlen - 1, 1);
         $last_two_char = mb_substr($wd, $wlen - 2, 2);
+        $truncated = mb_substr($wd, 0, $wlen - 1);
         $removed =  mb_substr($wd, 0, $wlen - 2);
         //error_log("word variants: $wd, $last_char, $last_two_char, $removed");
         if ($last_char === $this::$sa_jug || $last_char === $this::$ra_jug) {
+            $wds[] = $truncated;
             $wds[] = $removed . $this::$a_jug;
         } else if ($last_two_char === $this::$ai_jug) {
             $wds[] = $removed . $this::$a_jug;
