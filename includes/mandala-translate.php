@@ -260,18 +260,20 @@ final class MandalaTranslate
      */
     private function word_variants($wd) {
         $wds = array($wd);
-        $wlen = mb_strlen($wd);
-        $last_char = mb_substr($wd, $wlen - 1, 1);
-        $last_two_char = mb_substr($wd, $wlen - 2, 2);
-        $truncated = mb_substr($wd, 0, $wlen - 1);
-        $with_a_jug =  mb_substr($wd, 0, $wlen - 2) . $this::$a_jug;
+        $last_char = mb_substr($wd, -1);
+        $last_two_char = mb_substr($wd, -2);
+        $truncated = mb_substr($wd, 0, -1);
+        $extra_truncated = mb_substr($wd, 0, -2);
+        $with_a_jug =  $extra_truncated . $this::$a_jug;
         //error_log("word variants: $wd, $last_char, $last_two_char, $removed");
         if ($last_char === $this::$sa_jug || $last_char === $this::$ra_jug) {
             $wds[] = $truncated;
             $wds[] = $with_a_jug;
         } else if ($last_two_char === $this::$ai_jug) {
+            $wds[] = $extra_truncated;
             $wds[] = $with_a_jug;
         } else if ($last_two_char === $this::$ao) {
+            $wds[] = $extra_truncated;
             $wds[] = $with_a_jug;
         }
         return $wds;
