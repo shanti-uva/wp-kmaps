@@ -296,7 +296,7 @@ final class MandalaTranslate
         if(!in_array('fl', array_keys($opts))) {
             $opts_list[] = 'fl=*';
         }
-        $opts_list[] = 'sort=score%20ASC';
+        $opts_list[] = 'sort=score%20DESC';
         $opts_list[] = 'wt=json';
         $opts_str = implode('&', $opts_list);
         // This assumes we are only looking for kmaps
