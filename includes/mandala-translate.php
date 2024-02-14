@@ -274,7 +274,6 @@ final class MandalaTranslate
         } else if ($last_two_char === $this::$ao) {
             $wds[] = $with_a_jug;
         }
-
         return $wds;
     }
 
