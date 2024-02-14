@@ -71,6 +71,7 @@ final class MandalaTranslate
     }
 
     public function parse($data, $done) {
+        //error_log("parse data in: " . json_encode($data));
         $wyl = str_replace('%20', ' ', $data);
 
         $tib = $this->convert_wylie($wyl); // Returns same value if already Unicode Tibetan
@@ -78,6 +79,7 @@ final class MandalaTranslate
         // Look for conversion error messages and put into $errors variables
         $pts = preg_split('/\s+---\s*/', $tib);
         $tib = $pts[0];
+        //error_log("Tib after split: $tib");
         $errors = (count($pts) > 1) ? implode('<br/>', array_slice($pts, 1)) : '';
         if (!$tib) {
             return false;
@@ -95,7 +97,7 @@ final class MandalaTranslate
             $first_phrase = $phrase_split[0];
             $undone = $phrase_split[1];
         }
-        // error_log("$first_phrase :: $undone");
+        //error_log("First Phrase: $first_phrase :: Undone: $undone");
         [$words, $remaining, $done] = $this->phrase_parse($first_phrase, $done);
         $undone = implode($this::$tsek, $remaining) . ' ' . $undone;
 
@@ -186,6 +188,7 @@ final class MandalaTranslate
         $syls = array_filter($syls, function ($s) {
             return strlen($s) > 0;
         });
+        //error_log("Syllables in parse phrase: " . implode('$', $syls));
 
         // Remove any extraneous shads at end of syllables (couldn't get to work with pattern above)
         $delimfilter = function ($s)  {
@@ -234,6 +237,7 @@ final class MandalaTranslate
 
     private function find_word($wd) {
         $wds = $this->word_variants($wd);
+        //error_log("Word variants in find word: " . implode('$', $wds));
         $sdoc = $this->querySolr($wds);
         if (!empty($sdoc['response']['docs'])) {
             /*  For debugging, queries for full syllable with secondary hits on syllable without instrumental or la-don */
@@ -260,15 +264,12 @@ final class MandalaTranslate
         $last_char = mb_substr($wd, $wlen - 1, 1);
         $last_two_char = mb_substr($wd, $wlen - 2, 2);
         $removed =  mb_substr($wd, 0, $wlen - 2);
-        // error_log("last two: $last_two_char, removed: $removed");
+        //error_log("word variants: $wd, $last_char, $last_two_char, $removed");
         if ($last_char === $this::$sa_jug || $last_char === $this::$ra_jug) {
-            $wds[] = $removed;
             $wds[] = $removed . $this::$a_jug;
         } else if ($last_two_char === $this::$ai_jug) {
-            $wds[] = $removed;
             $wds[] = $removed . $this::$a_jug;
         } else if ($last_two_char === $this::$ao) {
-            $wds[] = $removed;
             $wds[] = $removed . $this::$a_jug;
         }
 
