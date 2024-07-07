@@ -11,6 +11,7 @@
  */
 
 require_once plugin_dir_path( __FILE__ ) . './includes/mandala-translate.php';
+require_once plugin_dir_path( __FILE__ ) . './includes/mandala-newar.php';
 
     defined( 'ABSPATH' ) || exit;
 
@@ -32,6 +33,7 @@ final class Mandala {
 	protected static $_instance = null;
 
     protected object $translator;
+    protected object $newartrans;
 
 	/**
 	 * Main Mandala Instance.
@@ -108,6 +110,7 @@ final class Mandala {
 		require_once(MANDALA_ADMIN . 'class-mandala-admin.php');  // Admin Class
 		require_once(MANDALA_INCLUDES . 'class-mandala-widget.php'); // Widget Class
         $this->translator = new MandalaTranslate();
+        $this->newartrans = new MandalaNewar();
 	}
 
 	/**
@@ -184,6 +187,12 @@ final class Mandala {
                 'callback' => array($this, 'parse_tibetan'),
                 'args' => array('tib'),
             ) );
+
+            register_rest_route( 'mandala/v1', '/parsenewar', array(
+                'methods' => 'GET',
+                'callback' => array($this, 'parse_newar'),
+                'args' => array('tib'),
+            ) );
         } );
     }
 
@@ -227,6 +236,41 @@ final class Mandala {
                 'status' => 'failure to parse Tibetan',
                 'tib' => $tib,
                 'translator' => (!empty($this->translator)) ? 'yes': 'no',
+                'request' => $request,
+            );
+
+            return $debug_out;
+        }
+    }
+
+    public function parse_newar( WP_REST_Request $request ) {
+        if (!$this->newartrans) { return; }
+        $newar = false;
+        if (isset($request['newar'])) {
+            $newar = $request['newar'];
+        }
+        $done = '';
+        if (isset($request['done'])) {
+            $done = $request['done'];
+        }
+
+        // $queryparams = $request->get_query_params();
+        // return json_encode($queryparams);
+
+        $retfunc = (isset($request['json_wrf'])) ? $request['json_wrf'] : false;
+
+        $tdata = $this->newartrans->parse($newar, $done);
+        if ($tdata) {
+            if ($retfunc) {
+                $tdata = json_encode($tdata);
+                return "$retfunc($tdata)";
+            }
+            return $tdata;
+        } else {
+            $debug_out = array(
+                'status' => 'failure to parse Newar',
+                'tib' => $newar,
+                'translator' => (!empty($this->newartrans)) ? 'yes': 'no',
                 'request' => $request,
             );
 
