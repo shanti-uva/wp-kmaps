@@ -59,7 +59,7 @@ final class MandalaTranslate
 
     private function getSolrUrl() {
         // TODO: Make these a setting so they can be changed site-by-site
-        $devurl = 'https://mandala-index-dev.internal.lib.virginia.edu/solr/kmassets/select';
+        $devurl = 'https://mandala-index.internal.lib.virginia.edu/solr/kmassets/select';
         $produrl = 'https://mandala-index.internal.lib.virginia.edu/solr/kmassets/select';
         $devstrs = ['local', 'dev', 'stage', 'staging'];
         $patt = '/(' . implode('|', $devstrs) . ')/';
@@ -284,7 +284,7 @@ final class MandalaTranslate
         // q string for tibetan def: names:\"$enctib\"
         // fq for defs: &fq=asset_type:terms&fq=related_uid_ss:subjects-9315&rows=10&fl=*&wt=json
         $opts_list = array(
-            'fq=asset_type:terms&fq=related_uid_ss:subjects-9315'  // Find only term definitions not other nodes in tree
+            'fq=asset_type:terms&fq=related_uid_ss:(subjects-9315 subjects-9668 subjects-9669 subjects-10525)'  // Find only term definitions not other nodes in tree
         );
         $qwd = preg_replace('/\s+/', '%20', $qwd);
         foreach($opts as $oky => $oval) {
