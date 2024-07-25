@@ -315,7 +315,8 @@ final class MandalaTranslate
         }
         // error_log("wds in mandala-translate querySolr: $wd");
         $surl = $this->solrurl . "?q=names:$wd&$opts_str";
-        // error_log("solr query: $surl");
+        $surl = str_replace(' ', '%20', $surl);
+        // error_log("$$$$$$$$$$$$$$$$$  $surl $$$$$$$$$$$$$$$$$$$$$");
         $sdoc_data = file_get_contents($surl);
         $sdoc = array(
             'status' => 'Nothing returned from solr'
