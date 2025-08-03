@@ -338,7 +338,8 @@ final class Mandala {
 			wp_enqueue_script('mandala-runtime', get_site_url() . $asset_manifest['runtime-main.js'], array('wp-element'), null, true);
 			wp_enqueue_script('mandala-main', get_site_url() . $asset_manifest['main.js'], array('mandala-runtime'), null, true);
 
-			foreach ($asset_manifest as $key => $value) {
+
+            foreach ($asset_manifest as $key => $value) {
 				if (preg_match('@static/js/(.*)\.chunk\.js@', $key, $matches)) {
 					if ($matches && is_array($matches) && count($matches) === 2) {
 						$name = 'mandala-' . preg_replace('/[^A-Za-z0-9]/', '-', $matches[1]);
@@ -383,6 +384,29 @@ final class Mandala {
 		if (!empty($options['advanced_search_hook_name'])) {
 			add_action($options['advanced_search_hook_name'], array($this, 'add_advanced_search'));
 		}
+
+        // Add ACF when it's a post
+        add_action('wp', function() {
+            // Only run if we are on the front end
+            if ( ! is_admin() ) {
+                if (is_page()) {
+                    $post_id = get_queried_object_id();
+                    $custom_kmaps = get_field('custom_kmap_trees', $post_id); // need to add to Mandala ACF group
+                    // wp_add_inline_script('mandala-main', 'console.log("React app loaded! And it‘s a page");');
+                    if ($custom_kmaps) {
+                        $tempparts = explode(',', $custom_kmaps);
+                        $treedata = array();
+                        foreach ($tempparts as $k) {
+                            list($key, $value) = explode(':', $k);
+                            $treedata[$key] = trim($value);
+                        }
+                        wp_localize_script('mandala-main', 'treedata', $treedata);
+                    }
+                }
+            }
+        });
+        /*
+       */
 	}
 
 	// Add Functions called from the add actions in add_mandala()
