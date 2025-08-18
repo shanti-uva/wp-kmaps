@@ -327,30 +327,33 @@ final class Mandala {
 	 */
 	private function enqueue_mandala_manifest() {
 		if (!is_admin()) {
+
 			$asset_manifest_raw = file_get_contents(MANDALA_ASSET_MANIFEST);
 			// error_log($asset_manifest_raw);
 			$asset_manifest = json_decode($asset_manifest_raw, true)['files'];
+            $manifest_version = filemtime(MANDALA_ASSET_MANIFEST);
+            //error_log("manifest version: $manifest_version");
 
 			if (isset($asset_manifest['main.css'])) {
-				wp_enqueue_style('mandala', get_site_url() . $asset_manifest['main.css']);
+				wp_enqueue_style('mandala', get_site_url() . $asset_manifest['main.css'], array(), $manifest_version);
 			}
 
-			wp_enqueue_script('mandala-runtime', get_site_url() . $asset_manifest['runtime-main.js'], array('wp-element'), null, true);
-			wp_enqueue_script('mandala-main', get_site_url() . $asset_manifest['main.js'], array('mandala-runtime'), null, true);
+			wp_enqueue_script('mandala-runtime', get_site_url() . $asset_manifest['runtime-main.js'], array('wp-element'), $manifest_version, true);
+			wp_enqueue_script('mandala-main', get_site_url() . $asset_manifest['main.js'], array('mandala-runtime'), $manifest_version, true);
 
 
             foreach ($asset_manifest as $key => $value) {
 				if (preg_match('@static/js/(.*)\.chunk\.js@', $key, $matches)) {
 					if ($matches && is_array($matches) && count($matches) === 2) {
 						$name = 'mandala-' . preg_replace('/[^A-Za-z0-9]/', '-', $matches[1]);
-						wp_enqueue_script($name, get_site_url() . $value, array('mandala-main'), null, true);
+						wp_enqueue_script($name, get_site_url() . $value, array('mandala-main'), $manifest_version, true);
 					}
 				}
 
 				if (preg_match('@static/css/(.*)\.chunk\.css@', $key, $matches)) {
 					if ($matches && is_array($matches) && count($matches) === 2) {
 						$name = 'mandala-' . preg_replace('/[^A-Za-z0-9]/', '-', $matches[1]);
-						wp_enqueue_style($name, get_site_url() . $value, array('mandala'), null);
+						wp_enqueue_style($name, get_site_url() . $value, array('mandala'), $manifest_version);
 					}
 				}
 			}
