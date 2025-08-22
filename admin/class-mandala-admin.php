@@ -92,6 +92,12 @@ class Mandala_Admin {
 		    'Other Settings',
 		    array($this, 'other_settings_section'),
 		    'mandala_settings');
+        add_settings_field(
+            'sitemap_page_id',
+            'Sitemap Page ID',
+            array($this, 'sitemap_page_id_field'),
+            'mandala_settings',
+            'other_settings_section');
 	    add_settings_field(
 		    'default_sidebar',
 		    'Default Sidebar',
@@ -194,7 +200,14 @@ class Mandala_Admin {
 		     "<div id='styles_messages'></div>";
 	}
 
-	public function default_sidebar_field() {
+    public function sitemap_page_id_field() {
+        $options = get_option('mandala_plugin_options');
+        $option_val = !empty($options['sitemap_page_id']) ? $options['sitemap_page_id'] : '';
+        echo "<input id='mandala_sitemap_page_id' name='mandala_plugin_options[sitemap_page_id]' " .
+            "type='text' value='" . esc_attr($option_val) . "' /><p><em>The page ID for the sitemap.</em></p>";
+    }
+
+    public function default_sidebar_field() {
 		$options = get_option( 'mandala_plugin_options' );
 		$option_val = !empty($options['default_sidebar']) ? $options['default_sidebar'] : '';
         $nonesel = ($option_val == 0) ? " selected='selected'" : '';
