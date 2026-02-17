@@ -111,6 +111,8 @@ final class Mandala {
 		require_once(MANDALA_INCLUDES . 'class-mandala-widget.php'); // Widget Class
         $this->translator = new MandalaTranslate();
         $this->newartrans = new MandalaNewar();
+        // Always set nocache for translation tool until stable
+        add_action('template_redirect', 'nocache_headers');
 	}
 
 	/**
