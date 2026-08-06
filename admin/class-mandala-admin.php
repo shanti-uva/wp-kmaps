@@ -20,12 +20,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Mandala_Admin {
 
 	/**
+	 * Hook suffix of the Mandala settings page, set once add_options_page() runs,
+	 * so enqueue_admin_assets() can limit itself to that page.
+	 * @var string
+	 */
+	protected $settings_page_hook;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		add_filter( 'plugin_action_links_mandala/mandala.php', array( $this, 'add_settings_link' ) );
         add_action('admin_init', array($this, 'register_settings'));
 		add_action( 'admin_menu', array($this, 'settings_page'));
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+	}
+
+	/**
+	 * Enqueue assets for the Mandala settings page only.
+	 * @param string $hook The current admin page's hook suffix.
+	 */
+	public function enqueue_admin_assets( $hook ) {
+		if ( $hook !== $this->settings_page_hook ) {
+			return;
+		}
 		wp_enqueue_style('mandala-admin-css', plugins_url("css/mandala-admin.css", __FILE__),
             array(), "1.0", "all");
 		wp_enqueue_style('jquery-linedtextarea-css', plugins_url("css/jquery-linedtextarea.css", __FILE__),
@@ -252,7 +270,7 @@ class Mandala_Admin {
     }
 
 	public function settings_page() {
-		add_options_page( 'Mandala Plugin Settings', 'Mandala',
+		$this->settings_page_hook = add_options_page( 'Mandala Plugin Settings', 'Mandala',
 			'manage_options', 'mandala_settings', array($this, 'render_settings_page') );
 	}
 
