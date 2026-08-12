@@ -6,6 +6,7 @@
  * Version: 1.1.1
  * Requires at least: 5.2
  * Requires PHP: 7.2
+ * Requires Plugins: mandala-proxy
  * Author: Gerard Ketuma, Than Grove
  * Domain Path: /languages
  */

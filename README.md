@@ -1,5 +1,20 @@
 # WP-Kmaps Plugin
 
+## Dependencies
+This plugin **requires** the [Mandala Proxy](https://github.com/shanti-uva/mandala-wp-proxy)
+plugin to be installed and active on the same WordPress site. The React app fetches asset
+detail JSON through Mandala Proxy's same-origin `/proxy/json` route rather than calling the
+Mandala/D11 API hosts directly cross-origin (needed because the app can be embedded on any
+WordPress site, not just ones Mandala/D11 infrastructure controls — see
+[Spike 6](https://github.com/uvalib/mandala-navina/blob/main/docs/spikes/spike-06-api-compatibility.md)
+in the `mandala-navina` repo for the full rationale).
+
+WordPress enforces this via the `Requires Plugins: mandala-proxy` header in `mandala.php` (WP
+6.5+) — activating this plugin without Mandala Proxy present will be blocked. **The dependency
+check matches by installed folder name**, so when installing Mandala Proxy from its repo
+(`shanti-uva/mandala-wp-proxy`), install it into a plugin folder literally named `mandala-proxy`
+(matching its main file, `mandala-proxy.php`) rather than the repo's own name.
+
 ## Introduction
 This plugin when installed will expose a React Application as Portals to be embedded in any WordPress site.
 This React application will integrate content from [Mandala Kmaps &amp; Assets](https://mandala.library.virginia.edu/).
