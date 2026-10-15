@@ -26,15 +26,20 @@ class Mandala_Admin {
 		add_filter( 'plugin_action_links_mandala/mandala.php', array( $this, 'add_settings_link' ) );
         add_action('admin_init', array($this, 'register_settings'));
 		add_action( 'admin_menu', array($this, 'settings_page'));
-		wp_enqueue_style('mandala-admin-css', plugins_url("css/mandala-admin.css", __FILE__),
-            array(), "1.0", "all");
-		wp_enqueue_style('jquery-linedtextarea-css', plugins_url("css/jquery-linedtextarea.css", __FILE__),
-			array(), "1.0", "all");
-		wp_enqueue_script( 'jquery-linedtextarea', plugins_url( "js/jquery-linedtextarea.js", __FILE__ ),
-            array( 'jquery' ), '1.0', true );
-		wp_enqueue_script( 'mandala-admin', plugins_url( "js/mandala-admin.js", __FILE__ ),
-            array( 'jquery-linedtextarea' ), '1.0', true );
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
+
 	}
+
+    public function enqueue_admin_styles() {
+        wp_enqueue_style('mandala-admin-css', plugins_url("css/mandala-admin.css", __FILE__),
+                array(), "1.0", "all");
+        wp_enqueue_style('jquery-linedtextarea-css', plugins_url("css/jquery-linedtextarea.css", __FILE__),
+                array(), "1.0", "all");
+        wp_enqueue_script( 'jquery-linedtextarea', plugins_url( "js/jquery-linedtextarea.js", __FILE__ ),
+                array( 'jquery' ), '1.0', true );
+        wp_enqueue_script( 'mandala-admin', plugins_url( "js/mandala-admin.js", __FILE__ ),
+                array( 'jquery-linedtextarea' ), '1.0', true );
+    }
 
     public function add_settings_link( $links ) {
 	    // Build and escape the URL.

@@ -81,10 +81,14 @@ final class Mandala {
 		$this->add_shortcodes();
 		$this->add_widgets();
 		$this->add_filters();
-        $this->add_endpoints();
-		$this->enqueue_scripts();
+        //$this->add_endpoints();
+        // Wrap enqueues in hooks instead of calling directly
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_styles'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_mandala_manifest'));
+		/*$this->enqueue_scripts();
 		$this->enqueue_styles();
-		$this->enqueue_mandala_manifest();
+		$this->enqueue_mandala_manifest();*/
 		$this->add_mandala();
 	}
 
@@ -174,8 +178,8 @@ final class Mandala {
 	}
 
     public function add_endpoints() {
+        // Deprecated: Incorrectly called register_rest_route
         add_action( 'rest_api_init', function () {
-
             register_rest_route( 'mandala/v1', '/splittib', array(
                 'methods' => 'GET',
                 'callback' => array($this, 'split_tibetan'),
@@ -281,7 +285,7 @@ final class Mandala {
 	/**
 	 * Define Mandala enqueue_scripts.
 	 */
-	private function enqueue_scripts() {
+	public function enqueue_scripts() {
 		if (!is_admin()) {
 			wp_enqueue_script( 'googlemaps', esc_url_raw( 'https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAXpnXkPS39-Bo5ovHQWvyIk6eMgcvc1q4&amp;sensor=false' ), array(), null );
 			wp_enqueue_script( 'jquery-resizable', plugins_url( "public/js/jquery-resizable.min.js", __FILE__ ), array( 'jquery' ), '1.0', true );
@@ -311,7 +315,7 @@ final class Mandala {
 	/**
 	 * Define Mandala enqueue_styles.
 	 */
-	private function enqueue_styles() {
+	public function enqueue_styles() {
 		if (!is_admin()) {
 			wp_enqueue_style( 'mandala-googlefonts', esc_url_raw( 'https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,500,700|Open+Sans:400,400i,600&subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext' ), array(), null );
 			wp_enqueue_style( 'fontawesome-main', esc_url_raw( 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/fontawesome.min.css' ), array(), null );
@@ -325,8 +329,8 @@ final class Mandala {
 	 * Define Mandala enqueue_mandala_manifest.
 	 * Enqueues the scripts and styles used for the Mandala app
 	 */
-	private function enqueue_mandala_manifest() {
-		if (!is_admin()) {
+	public function enqueue_mandala_manifest() {
+		if (!is_admin() && file_exists(MANDALA_ASSET_MANIFEST)) {
 
 			$asset_manifest_raw = file_get_contents(MANDALA_ASSET_MANIFEST);
 			// error_log($asset_manifest_raw);
